@@ -43,3 +43,6 @@ coverage/
 # Misc
 .cache/
 *.pid
+
+# Phase 1 test output (CLI-generated PNGs for eyeballing)
+test-output/
