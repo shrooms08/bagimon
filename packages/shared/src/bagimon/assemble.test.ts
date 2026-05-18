@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
-import { assembleBagimon, CANVAS_SIZE } from './assemble.js';
+import { assembleBagimon, CANVAS_SIZE, DISCORD_OUTPUT_SIZE } from './assemble.js';
 import { loadTraitsConfig } from './config.js';
 import { MOODS } from './types.js';
 import type { TraitsConfig } from './types.js';
@@ -80,6 +80,21 @@ describeIfAssets('assembleBagimon', () => {
       );
       expect(png.length).toBeGreaterThan(0);
     }
+  });
+
+  it('upscales to 512x512 when outputSize=DISCORD_OUTPUT_SIZE', async () => {
+    expect(DISCORD_OUTPUT_SIZE).toBe(512);
+    const png = await assembleBagimon(
+      { species: 'ghotosai', accessory: 'partyhat' },
+      'happy',
+      assetsDir,
+      config,
+      { outputSize: DISCORD_OUTPUT_SIZE },
+    );
+    const meta = await sharp(png).metadata();
+    expect(meta.width).toBe(512);
+    expect(meta.height).toBe(512);
+    expect(meta.format).toBe('png');
   });
 
   it('handles missing accessory gracefully', async () => {

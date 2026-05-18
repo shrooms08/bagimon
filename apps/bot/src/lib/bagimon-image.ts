@@ -3,6 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   assembleBagimon,
+  DISCORD_OUTPUT_SIZE,
   findSpecies,
   loadTraitsConfig,
   mintToSeed,
@@ -39,7 +40,9 @@ export async function renderBagimonAttachment(
 ): Promise<{ attachment: AttachmentBuilder; traits: BagimonTraits; species: SpeciesEntry }> {
   const config = await getConfig();
   const traits = traitsForMint(mint, config);
-  const png = await assembleBagimon(traits, mood, ASSETS_DIR, config);
+  const png = await assembleBagimon(traits, mood, ASSETS_DIR, config, {
+    outputSize: DISCORD_OUTPUT_SIZE,
+  });
   const attachment = new AttachmentBuilder(png, { name: filename });
   return { attachment, traits, species: findSpecies(config, traits.species) };
 }

@@ -10,5 +10,5 @@ export type {
   Mood,
 } from './types.js';
 export { SPECIES_IDS, MOODS } from './types.js';
-export { assembleBagimon, CANVAS_SIZE } from './assemble.js';
+export { assembleBagimon, CANVAS_SIZE, DISCORD_OUTPUT_SIZE } from './assemble.js';
 export { loadTraitsConfig } from './config.js';

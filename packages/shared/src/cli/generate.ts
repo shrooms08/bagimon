@@ -16,12 +16,14 @@ interface CliArgs {
   mint: string;
   mood: Mood;
   out: string;
+  size: number;
 }
 
 function parseArgs(argv: readonly string[]): CliArgs {
   const positional: string[] = [];
   let mood: Mood = 'happy';
   let out = './bagimon.png';
+  let size = 64;
   for (const arg of argv) {
     if (arg.startsWith('--mood=')) {
       const value = arg.slice('--mood='.length);
@@ -31,6 +33,13 @@ function parseArgs(argv: readonly string[]): CliArgs {
       mood = value as Mood;
     } else if (arg.startsWith('--out=')) {
       out = arg.slice('--out='.length);
+    } else if (arg.startsWith('--size=')) {
+      const raw = arg.slice('--size='.length);
+      const parsed = Number.parseInt(raw, 10);
+      if (!Number.isFinite(parsed) || parsed < 64) {
+        throw new Error(`invalid --size=${raw}; must be an integer >= 64`);
+      }
+      size = parsed;
     } else if (arg.startsWith('--')) {
       throw new Error(`unknown flag: ${arg}`);
     } else {
@@ -39,9 +48,11 @@ function parseArgs(argv: readonly string[]): CliArgs {
   }
   const mint = positional[0];
   if (!mint) {
-    throw new Error('usage: generate <mint-address> [--mood=happy] [--out=./bagimon.png]');
+    throw new Error(
+      'usage: generate <mint-address> [--mood=happy] [--out=./bagimon.png] [--size=64]',
+    );
   }
-  return { mint, mood, out };
+  return { mint, mood, out, size };
 }
 
 function validateMint(mint: string): void {
@@ -69,7 +80,9 @@ async function main(): Promise<void> {
   const seed = mintToSeed(args.mint);
   const traits = selectTraits(seed, config);
 
-  const png = await assembleBagimon(traits, args.mood, assetsDir, config);
+  const png = await assembleBagimon(traits, args.mood, assetsDir, config, {
+    outputSize: args.size,
+  });
 
   const outPath = resolve(process.cwd(), args.out);
   await mkdir(dirname(outPath), { recursive: true });
@@ -80,6 +93,7 @@ async function main(): Promise<void> {
       {
         mint: args.mint,
         mood: args.mood,
+        size: args.size,
         species: traits.species,
         accessory: traits.accessory,
         out: outPath,
