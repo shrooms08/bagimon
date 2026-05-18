@@ -49,9 +49,23 @@ From the repo root, after `pnpm install`:
 pnpm --filter @bagimon/bot deploy:commands
 ```
 
-Global commands can take up to an hour to propagate. If you want instant
-iteration during dev, see Discord's docs on guild-scoped commands and add a
-`DISCORD_DEV_GUILD_ID` shortcut (not done in v1 — premature).
+Global commands can take up to an hour to propagate.
+
+### Development tip: guild-only registration
+
+For instant iteration during development, set `DISCORD_DEV_GUILD_ID` in
+`.env` to the ID of your test server (enable Developer Mode in Discord,
+right-click the server icon → **Copy Server ID**). When that var is set,
+`deploy:commands` registers commands **only to that guild** and they appear
+immediately — no hour-long wait.
+
+- `DISCORD_DEV_GUILD_ID` set → guild-only registration (instant, dev mode)
+- `DISCORD_DEV_GUILD_ID` unset or empty → global registration (up to 1 hour)
+
+To switch back to global registration (e.g. before shipping), comment out
+or remove the line and re-run `pnpm --filter @bagimon/bot deploy:commands`.
+Note: switching modes does not auto-clean the other scope — guild and
+global command sets are independent.
 
 ## 5. Run locally
 
