@@ -6,20 +6,26 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch",
+    "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
     "lint": "eslint src --ext .ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "deploy:commands": "tsx src/deploy-commands.ts"
   },
   "dependencies": {
     "@bagimon/shared": "workspace:*",
     "@bagimon/db": "workspace:*",
-    "discord.js": "^14.14.0",
     "@anthropic-ai/sdk": "^0.27.0",
-    "dotenv": "^16.4.0"
+    "discord.js": "^14.14.0",
+    "dotenv": "^16.4.0",
+    "zod": "^3.23.0"
   },
   "devDependencies": {
     "typescript": "^5.4.0",
-    "@types/node": "^20.11.0"
+    "@types/node": "^20.11.0",
+    "tsx": "^4.19.2",
+    "vitest": "^2.1.8"
   }
 }

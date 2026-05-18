@@ -132,6 +132,16 @@ Bagimon/
 - **Imports**: use workspace protocol (`workspace:*`) for internal packages.
 - **Files**: kebab-case for filenames, PascalCase for React components.
 - **Comments**: only when the *why* is non-obvious. Don't narrate the code.
+- **Bagimon visual identity is derived deterministically from the coin mint
+  address — never randomize trait selection at runtime. The mint IS the seed.**
+- **All trait-selection logic lives in `packages/shared/src/bagimon/`. Never
+  duplicate this logic in `apps/bot` or `apps/web`.**
+- **The 32-byte seed reserves bytes 20–31 for future trait categories — do
+  not consume them without updating CLAUDE.md and writing a migration plan
+  for existing Bagimons.**
+- **All DB access goes through `BagimonRepository` (and future repositories
+  in `packages/db`) — never write Supabase queries directly in Discord
+  command handlers or Next.js route handlers.**
 
 ---
 
@@ -239,5 +249,35 @@ Practical implications:
 
 ---
 
-*Last updated: Phase 0 scaffold. Update this file whenever a phase completes
+## 12. Phase Progress
+
+- ✅ **Phase 0 — Scaffold** — pnpm/Turborepo monorepo, TS strict, CLAUDE.md,
+  empty package skeletons.
+- ✅ **Phase 1 — Art generator** — hand-drawn Pixelorama PNG layers in
+  `packages/art`, deterministic mint-to-traits + layer composition in
+  `packages/shared` (assemble.ts, traits.ts, hash.ts), CLI generator that turns
+  any mint into a PNG.
+- ✅ **Phase 2 — Bot skeleton + DB schema** — Supabase migration
+  (`bagimons`, `mood_transitions`, `bagimon_parents`), `@bagimon/db` with
+  typed client + `BagimonRepository`, Discord bot with `/bagimon spawn|stats|pet|lore`
+  subcommands. `/bagimon spawn` writes to Supabase and replies with a real
+  generated Bagimon PNG. Other commands run against stubbed data until
+  Phase 3 wires live coin info.
+
+## 13. Discord bot operations
+
+- **Deploy slash commands** (run once per command change): from repo root,
+  `pnpm --filter @bagimon/bot deploy:commands`. Reads `DISCORD_BOT_TOKEN` and
+  `DISCORD_CLIENT_ID` from `.env`. Global registration; can take up to an
+  hour to appear in clients.
+- **Run locally**: `pnpm --filter @bagimon/bot dev` (tsx watch).
+- **Build for prod**: `pnpm --filter @bagimon/bot build` then `pnpm --filter @bagimon/bot start`.
+- **Invite to a server**: see `apps/bot/README.md` for OAuth scopes/permissions.
+- **Logs**: stdout — `console.info` for lifecycle, `console.error` for failed
+  commands. Failed commands also reply to the user ephemerally with the error
+  message so dev iteration is tight.
+
+---
+
+*Last updated: Phase 2. Update this file whenever a phase completes
 or a core assumption changes.*
