@@ -1,25 +1,13 @@
-export type Rarity = 'common' | 'uncommon' | 'rare' | 'legendary';
+import type {
+  AccessoryEntry,
+  BagimonTraits,
+  Rarity,
+  SpeciesEntry,
+  SpeciesId,
+  TraitsConfig,
+} from './types.js';
 
-export interface TraitEntry {
-  id: string;
-  file: string;
-  rarity: Rarity;
-}
-
-export interface TraitsConfig {
-  bodies: TraitEntry[];
-  eyes: TraitEntry[];
-  mouths: TraitEntry[];
-  accessories: TraitEntry[];
-  moods: TraitEntry[];
-}
-
-export interface BagimonTraits {
-  body: string;
-  eyes: string;
-  mouth: string;
-  accessory: string | null;
-}
+export type { BagimonTraits, TraitsConfig, Rarity, SpeciesEntry, AccessoryEntry, SpeciesId } from './types.js';
 
 const RARITY_WEIGHT: Record<Rarity, number> = {
   common: 50,
@@ -36,7 +24,9 @@ function readUint32(seed: Uint8Array, offset: number): number {
   const c = seed[offset + 2];
   const d = seed[offset + 3];
   if (a === undefined || b === undefined || c === undefined || d === undefined) {
-    throw new Error(`seed too short: needed bytes ${offset}..${offset + 3}, got length ${seed.length}`);
+    throw new Error(
+      `seed too short: needed bytes ${offset}..${offset + 3}, got length ${seed.length}`,
+    );
   }
   return ((a << 24) | (b << 16) | (c << 8) | d) >>> 0;
 }
@@ -45,7 +35,11 @@ function unitFloat(seed: Uint8Array, offset: number): number {
   return readUint32(seed, offset) / 0x1_0000_0000;
 }
 
-function weightedPick<T extends TraitEntry>(entries: readonly T[], roll: number): T {
+interface WeightedEntry {
+  rarity: Rarity;
+}
+
+function weightedPick<T extends WeightedEntry>(entries: readonly T[], roll: number): T {
   if (entries.length === 0) {
     throw new Error('weightedPick: empty entries');
   }
@@ -55,32 +49,40 @@ function weightedPick<T extends TraitEntry>(entries: readonly T[], roll: number)
     target -= RARITY_WEIGHT[entry.rarity];
     if (target < 0) return entry;
   }
-  // Floating-point safety: return last.
   const last = entries[entries.length - 1];
   if (!last) throw new Error('weightedPick: unreachable');
   return last;
 }
 
+// Seed byte budget:
+//   0-3   species selection
+//   4-7   accessory skip roll (~30% chance of no accessory)
+//   8-11  accessory selection
+//   12-31 RESERVED — do not consume without a migration plan
 export function selectTraits(seed: Uint8Array, config: TraitsConfig): BagimonTraits {
-  if (seed.length < 20) {
-    throw new Error(`selectTraits: seed must be at least 20 bytes, got ${seed.length}`);
+  if (seed.length < 12) {
+    throw new Error(`selectTraits: seed must be at least 12 bytes, got ${seed.length}`);
   }
-  const body = weightedPick(config.bodies, unitFloat(seed, 0));
-  const eyes = weightedPick(config.eyes, unitFloat(seed, 4));
-  const mouth = weightedPick(config.mouths, unitFloat(seed, 8));
-  const accessoryRoll = unitFloat(seed, 12);
-  const accessoryPick = weightedPick(config.accessories, unitFloat(seed, 16));
-  const accessory = accessoryRoll < ACCESSORY_SKIP_THRESHOLD ? null : accessoryPick.id;
+  const species = weightedPick(config.species, unitFloat(seed, 0));
+  const accessorySkip = unitFloat(seed, 4);
+  const hasAccessory = accessorySkip >= ACCESSORY_SKIP_THRESHOLD && config.accessories.length > 0;
+  const accessory = hasAccessory
+    ? weightedPick(config.accessories, unitFloat(seed, 8)).id
+    : null;
   return {
-    body: body.id,
-    eyes: eyes.id,
-    mouth: mouth.id,
+    species: species.id,
     accessory,
   };
 }
 
-export function findTrait(entries: readonly TraitEntry[], id: string): TraitEntry {
-  const found = entries.find((e) => e.id === id);
-  if (!found) throw new Error(`trait not found: ${id}`);
+export function findSpecies(config: TraitsConfig, id: SpeciesId): SpeciesEntry {
+  const found = config.species.find((s) => s.id === id);
+  if (!found) throw new Error(`species not found: ${id}`);
+  return found;
+}
+
+export function findAccessory(config: TraitsConfig, id: string): AccessoryEntry {
+  const found = config.accessories.find((a) => a.id === id);
+  if (!found) throw new Error(`accessory not found: ${id}`);
   return found;
 }

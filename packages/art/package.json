@@ -2,5 +2,12 @@
   "name": "@bagimon/art",
   "version": "0.0.0",
   "private": true,
-  "description": "Hand-drawn Pixelorama PNG assets + assembly metadata for Bagimon creatures"
+  "description": "Hand-drawn Pixelorama PNG assets + assembly metadata for Bagimon creatures",
+  "scripts": {
+    "import": "tsx scripts/import-assets.ts"
+  },
+  "devDependencies": {
+    "sharp": "^0.33.5",
+    "tsx": "^4.19.2"
+  }
 }

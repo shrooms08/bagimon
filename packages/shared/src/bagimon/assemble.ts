@@ -1,16 +1,10 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import sharp from 'sharp';
-import type { BagimonTraits, TraitsConfig } from './traits.js';
-import { findTrait } from './traits.js';
-import type { Mood } from './mood.js';
-import { moodAssetId } from './mood.js';
+import type { BagimonTraits, Mood, TraitsConfig } from './types.js';
+import { findAccessory } from './traits.js';
 
-export const CANVAS_SIZE = 256;
-
-async function loadLayer(assetsDir: string, file: string): Promise<Buffer> {
-  return readFile(join(assetsDir, file));
-}
+export const CANVAS_SIZE = 64;
 
 export async function assembleBagimon(
   traits: BagimonTraits,
@@ -18,17 +12,13 @@ export async function assembleBagimon(
   assetsDir: string,
   config: TraitsConfig,
 ): Promise<Buffer> {
-  const layerFiles: string[] = [
-    findTrait(config.bodies, traits.body).file,
-    findTrait(config.mouths, traits.mouth).file,
-    findTrait(config.eyes, traits.eyes).file,
-  ];
-  if (traits.accessory !== null) {
-    layerFiles.push(findTrait(config.accessories, traits.accessory).file);
-  }
-  layerFiles.push(findTrait(config.moods, moodAssetId(mood)).file);
+  const speciesFile = join(assetsDir, 'species', traits.species, `${mood}.png`);
+  const layers: Buffer[] = [await readFile(speciesFile)];
 
-  const layers = await Promise.all(layerFiles.map((f) => loadLayer(assetsDir, f)));
+  if (traits.accessory !== null) {
+    const acc = findAccessory(config, traits.accessory);
+    layers.push(await readFile(join(assetsDir, acc.file)));
+  }
 
   const base = sharp({
     create: {

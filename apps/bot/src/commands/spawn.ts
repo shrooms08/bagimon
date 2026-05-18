@@ -38,13 +38,15 @@ export async function handleSpawn(
     spawned_by_discord_user_id: interaction.user.id,
   });
 
-  const attachment = await renderBagimonAttachment(mint, 'happy', `bagimon-${shortMint(mint)}.png`);
+  const { attachment, species } = await renderBagimonAttachment(
+    mint,
+    'happy',
+    `bagimon-${shortMint(mint)}.png`,
+  );
 
   const embed = new EmbedBuilder()
-    .setTitle('A wild Bagimon appeared!')
-    .setDescription(
-      `Born from the coin \`${shortMint(mint)}\`. Take care of it — it lives and dies with the community.`,
-    )
+    .setTitle(`A wild ${species.displayName} appeared!`)
+    .setDescription(`${species.lore}\n\nBorn from \`${shortMint(mint)}\`.`)
     .setColor(0xffd166)
     .setImage(`attachment://${attachment.name ?? 'bagimon.png'}`)
     .setFooter({ text: 'Use /bagimon pet to interact' });

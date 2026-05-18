@@ -77,7 +77,14 @@ async function main(): Promise<void> {
 
   console.info(
     JSON.stringify(
-      { mint: args.mint, mood: args.mood, traits, out: outPath, bytes: png.length },
+      {
+        mint: args.mint,
+        mood: args.mood,
+        species: traits.species,
+        accessory: traits.accessory,
+        out: outPath,
+        bytes: png.length,
+      },
       null,
       2,
     ),

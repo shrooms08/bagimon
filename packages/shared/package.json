@@ -14,8 +14,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "generate": "tsx src/cli/generate.ts",
-    "placeholders": "tsx ../art/scripts/generate-placeholders.ts"
+    "generate": "tsx src/cli/generate.ts"
   },
   "dependencies": {
     "bs58": "^6.0.0",

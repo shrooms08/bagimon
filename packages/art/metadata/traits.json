@@ -1,49 +1,22 @@
 {
-  "bodies": [
-    { "id": "body_01", "file": "bodies/body_01.png", "rarity": "common" },
-    { "id": "body_02", "file": "bodies/body_02.png", "rarity": "common" },
-    { "id": "body_03", "file": "bodies/body_03.png", "rarity": "common" },
-    { "id": "body_04", "file": "bodies/body_04.png", "rarity": "common" },
-    { "id": "body_05", "file": "bodies/body_05.png", "rarity": "uncommon" },
-    { "id": "body_06", "file": "bodies/body_06.png", "rarity": "uncommon" },
-    { "id": "body_07", "file": "bodies/body_07.png", "rarity": "rare" },
-    { "id": "body_08", "file": "bodies/body_08.png", "rarity": "legendary" }
-  ],
-  "eyes": [
-    { "id": "eyes_01", "file": "eyes/eyes_01.png", "rarity": "common" },
-    { "id": "eyes_02", "file": "eyes/eyes_02.png", "rarity": "common" },
-    { "id": "eyes_03", "file": "eyes/eyes_03.png", "rarity": "common" },
-    { "id": "eyes_04", "file": "eyes/eyes_04.png", "rarity": "uncommon" },
-    { "id": "eyes_05", "file": "eyes/eyes_05.png", "rarity": "uncommon" },
-    { "id": "eyes_06", "file": "eyes/eyes_06.png", "rarity": "rare" }
-  ],
-  "mouths": [
-    { "id": "mouth_01", "file": "mouths/mouth_01.png", "rarity": "common" },
-    { "id": "mouth_02", "file": "mouths/mouth_02.png", "rarity": "common" },
-    { "id": "mouth_03", "file": "mouths/mouth_03.png", "rarity": "common" },
-    { "id": "mouth_04", "file": "mouths/mouth_04.png", "rarity": "uncommon" },
-    { "id": "mouth_05", "file": "mouths/mouth_05.png", "rarity": "uncommon" },
-    { "id": "mouth_06", "file": "mouths/mouth_06.png", "rarity": "rare" }
+  "canvasSize": 64,
+  "species": [
+    {
+      "id": "ghotosai",
+      "displayName": "Ghotosai",
+      "rarity": "common",
+      "lore": "A friendly spirit creature said to haunt coins it has grown attached to. Its blush deepens when it senses love from holders."
+    },
+    {
+      "id": "potatiki",
+      "displayName": "Potatiki",
+      "rarity": "common",
+      "lore": "Born of soil and starch, the Potatiki tends to the roots of small communities. Sprouts a leaf when its coin is thriving."
+    }
   ],
   "accessories": [
-    { "id": "accessory_01", "file": "accessories/accessory_01.png", "rarity": "common" },
-    { "id": "accessory_02", "file": "accessories/accessory_02.png", "rarity": "common" },
-    { "id": "accessory_03", "file": "accessories/accessory_03.png", "rarity": "common" },
-    { "id": "accessory_04", "file": "accessories/accessory_04.png", "rarity": "common" },
-    { "id": "accessory_05", "file": "accessories/accessory_05.png", "rarity": "common" },
-    { "id": "accessory_06", "file": "accessories/accessory_06.png", "rarity": "common" },
-    { "id": "accessory_07", "file": "accessories/accessory_07.png", "rarity": "uncommon" },
-    { "id": "accessory_08", "file": "accessories/accessory_08.png", "rarity": "uncommon" },
-    { "id": "accessory_09", "file": "accessories/accessory_09.png", "rarity": "uncommon" },
-    { "id": "accessory_10", "file": "accessories/accessory_10.png", "rarity": "uncommon" },
-    { "id": "accessory_11", "file": "accessories/accessory_11.png", "rarity": "rare" },
-    { "id": "accessory_12", "file": "accessories/accessory_12.png", "rarity": "legendary" }
-  ],
-  "moods": [
-    { "id": "mood_happy", "file": "moods/mood_happy.png", "rarity": "common" },
-    { "id": "mood_hungry", "file": "moods/mood_hungry.png", "rarity": "common" },
-    { "id": "mood_sick", "file": "moods/mood_sick.png", "rarity": "common" },
-    { "id": "mood_thriving", "file": "moods/mood_thriving.png", "rarity": "common" },
-    { "id": "mood_dying", "file": "moods/mood_dying.png", "rarity": "common" }
+    { "id": "eyepatch", "file": "accessories/eyepatch.png", "rarity": "uncommon" },
+    { "id": "glasses", "file": "accessories/glasses.png", "rarity": "common" },
+    { "id": "partyhat", "file": "accessories/partyhat.png", "rarity": "rare" }
   ]
 }

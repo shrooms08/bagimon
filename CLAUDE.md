@@ -132,13 +132,21 @@ Bagimon/
 - **Imports**: use workspace protocol (`workspace:*`) for internal packages.
 - **Files**: kebab-case for filenames, PascalCase for React components.
 - **Comments**: only when the *why* is non-obvious. Don't narrate the code.
-- **Bagimon visual identity is derived deterministically from the coin mint
-  address — never randomize trait selection at runtime. The mint IS the seed.**
+- **A Bagimon's identity is (species, accessory). Mood is runtime state, not
+  identity. Identity is derived deterministically from the coin mint — never
+  randomize at runtime. The mint IS the seed.**
+- **Species are hand-drawn full-character sprites with 5 mood variants each.
+  Mood is baked into the species drawing, not applied as an overlay.**
+- **Canvas size is 64×64 (changed from 256×256 in Phase 1).**
+- **Seed byte budget: 0–3 species, 4–7 accessory-skip roll, 8–11 accessory,
+  12–31 RESERVED for future trait categories — do not consume without a
+  migration plan for existing Bagimons.**
+- **Current species: `ghotosai`, `potatiki`. Add more by dropping a folder
+  under `packages/art/assets/species/<id>/` with the 5 required mood PNGs
+  and registering the species in `packages/art/metadata/traits.json` plus
+  the `SpeciesId` union in `@bagimon/shared`'s `types.ts`.**
 - **All trait-selection logic lives in `packages/shared/src/bagimon/`. Never
   duplicate this logic in `apps/bot` or `apps/web`.**
-- **The 32-byte seed reserves bytes 20–31 for future trait categories — do
-  not consume them without updating CLAUDE.md and writing a migration plan
-  for existing Bagimons.**
 - **All DB access goes through `BagimonRepository` (and future repositories
   in `packages/db`) — never write Supabase queries directly in Discord
   command handlers or Next.js route handlers.**
@@ -263,6 +271,12 @@ Practical implications:
   subcommands. `/bagimon spawn` writes to Supabase and replies with a real
   generated Bagimon PNG. Other commands run against stubbed data until
   Phase 3 wires live coin info.
+- ✅ **Phase 2.5 — Species refactor + real art** — trait model switched from
+  parts-based (body/eyes/mouth) to species + mood + accessory. Canvas 64×64.
+  Real hand-drawn `ghotosai` and `potatiki` sprites imported with 5 mood
+  variants each; 3 accessories (`eyepatch`, `glasses`, `partyhat`). Importer
+  script (`pnpm --filter @bagimon/art import`) copies + downscales from
+  source assets. Migration `0002_phase_2_5_wipe.sql` wipes the pre-2.5 row.
 
 ## 13. Discord bot operations
 
@@ -279,5 +293,5 @@ Practical implications:
 
 ---
 
-*Last updated: Phase 2. Update this file whenever a phase completes
+*Last updated: Phase 2.5. Update this file whenever a phase completes
 or a core assumption changes.*
