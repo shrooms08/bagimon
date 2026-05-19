@@ -17,6 +17,74 @@ const ConfigSchema = z.object({
     .string()
     .optional()
     .transform((v) => (v && v.length > 0 ? v : undefined)),
+  HELIUS_API_KEY: z
+    .string()
+    .optional()
+    .transform((v) => (v && v.length > 0 ? v : undefined)),
+  MOOD_LOOP_INTERVAL_MINUTES: z
+    .string()
+    .optional()
+    .transform((v, ctx) => {
+      if (!v || v.length === 0) return 30;
+      const n = Number(v);
+      if (!Number.isInteger(n) || n <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'MOOD_LOOP_INTERVAL_MINUTES must be a positive integer',
+        });
+        return z.NEVER;
+      }
+      return n;
+    }),
+  MOOD_LOOP_CONCURRENCY: z
+    .string()
+    .optional()
+    .transform((v, ctx) => {
+      if (!v || v.length === 0) return 5;
+      const n = Number(v);
+      if (!Number.isInteger(n) || n <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'MOOD_LOOP_CONCURRENCY must be a positive integer',
+        });
+        return z.NEVER;
+      }
+      return n;
+    }),
+  ANTHROPIC_API_KEY: z
+    .string()
+    .optional()
+    .transform((v) => (v && v.length > 0 ? v : undefined)),
+  AI_RATE_LIMIT_USER_PER_HOUR: z
+    .string()
+    .optional()
+    .transform((v, ctx) => {
+      if (!v || v.length === 0) return 3;
+      const n = Number(v);
+      if (!Number.isInteger(n) || n <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'AI_RATE_LIMIT_USER_PER_HOUR must be a positive integer',
+        });
+        return z.NEVER;
+      }
+      return n;
+    }),
+  AI_RATE_LIMIT_BAGIMON_PER_HOUR: z
+    .string()
+    .optional()
+    .transform((v, ctx) => {
+      if (!v || v.length === 0) return 20;
+      const n = Number(v);
+      if (!Number.isInteger(n) || n <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'AI_RATE_LIMIT_BAGIMON_PER_HOUR must be a positive integer',
+        });
+        return z.NEVER;
+      }
+      return n;
+    }),
 });
 
 export type BotConfig = z.infer<typeof ConfigSchema>;

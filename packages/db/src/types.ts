@@ -15,6 +15,10 @@ export type Bagimon = {
   spawned_by_discord_user_id: string;
   created_at: string;
   updated_at: string;
+  last_stats_at: string | null;
+  last_price_usd: number | null;
+  last_volume24h_usd: number | null;
+  last_price_change_24h_pct: number | null;
 };
 
 export type MoodTransition = {
@@ -53,6 +57,50 @@ export type MoodTransitionInsert = {
   trigger_reason: string | null;
 };
 
+export type Interaction = {
+  id: string;
+  bagimon_id: string;
+  petter_discord_user_id: string;
+  petter_discord_display_name: string;
+  response_text: string;
+  source: 'haiku' | 'fallback';
+  created_at: string;
+};
+
+export type InteractionInsert = {
+  bagimon_id: string;
+  petter_discord_user_id: string;
+  petter_discord_display_name: string;
+  response_text: string;
+  source: 'haiku' | 'fallback';
+};
+
+export type AiCall = {
+  id: string;
+  bagimon_id: string | null;
+  discord_user_id: string;
+  model: string;
+  input_tokens: number;
+  output_tokens: number;
+  cost_usd_estimate: number;
+  latency_ms: number;
+  succeeded: boolean;
+  fallback_reason: string | null;
+  created_at: string;
+};
+
+export type AiCallInsert = {
+  bagimon_id: string | null;
+  discord_user_id: string;
+  model: string;
+  input_tokens: number;
+  output_tokens: number;
+  cost_usd_estimate: number;
+  latency_ms: number;
+  succeeded: boolean;
+  fallback_reason?: string | null;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -72,6 +120,18 @@ export type Database = {
         Row: BagimonParent;
         Insert: Omit<BagimonParent, 'id' | 'first_became_parent_at' | 'updated_at'>;
         Update: Partial<BagimonParent>;
+        Relationships: [];
+      };
+      interactions: {
+        Row: Interaction;
+        Insert: InteractionInsert;
+        Update: Partial<Interaction>;
+        Relationships: [];
+      };
+      ai_calls: {
+        Row: AiCall;
+        Insert: AiCallInsert;
+        Update: Partial<AiCall>;
         Relationships: [];
       };
     };

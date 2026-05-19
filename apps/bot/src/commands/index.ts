@@ -3,11 +3,27 @@ import {
   type ChatInputCommandInteraction,
   type RESTPostAPIChatInputApplicationCommandsJSONBody,
 } from 'discord.js';
-import type { BagimonRepository } from '@bagimon/db';
+import type {
+  BagimonRepository,
+  InteractionsRepository,
+  AiCallsRepository,
+  MoodTransitionsRepository,
+} from '@bagimon/db';
+import type { PersonalityService } from '@bagimon/ai';
 import { handleSpawn } from './spawn.js';
 import { handleStats } from './stats.js';
 import { handlePet } from './pet.js';
 import { handleLore } from './lore.js';
+import { handleRefresh } from './refresh.js';
+import type { MoodLoop } from '../mood-loop/index.js';
+
+export interface CommandContext {
+  moodLoop: MoodLoop;
+  interactions: InteractionsRepository;
+  aiCalls: AiCallsRepository;
+  moodTransitions: MoodTransitionsRepository;
+  personality: PersonalityService;
+}
 
 export const bagimonCommand = new SlashCommandBuilder()
   .setName('bagimon')
@@ -37,6 +53,14 @@ export const bagimonCommand = new SlashCommandBuilder()
       .setName('lore')
       .setDescription("Read this Bagimon's origin story.")
       .addStringOption((o) => o.setName('mint').setDescription('Coin mint (optional if only one)')),
+  )
+  .addSubcommand((s) =>
+    s
+      .setName('refresh')
+      .setDescription('Force a mood-loop tick now (rate limited).')
+      .addStringOption((o) =>
+        o.setName('mint').setDescription('Refresh only this coin mint (optional)'),
+      ),
   );
 
 export const commandDefinitions: RESTPostAPIChatInputApplicationCommandsJSONBody[] = [
@@ -46,6 +70,7 @@ export const commandDefinitions: RESTPostAPIChatInputApplicationCommandsJSONBody
 export async function dispatchCommand(
   interaction: ChatInputCommandInteraction,
   repo: BagimonRepository,
+  ctx: CommandContext,
 ): Promise<void> {
   if (interaction.commandName !== 'bagimon') return;
   const sub = interaction.options.getSubcommand();
@@ -55,9 +80,17 @@ export async function dispatchCommand(
     case 'stats':
       return handleStats(interaction, repo);
     case 'pet':
-      return handlePet(interaction, repo);
+      return handlePet(interaction, {
+        bagimons: repo,
+        interactions: ctx.interactions,
+        aiCalls: ctx.aiCalls,
+        moodTransitions: ctx.moodTransitions,
+        personality: ctx.personality,
+      });
     case 'lore':
       return handleLore(interaction, repo);
+    case 'refresh':
+      return handleRefresh(interaction, ctx.moodLoop);
     default:
       await interaction.reply({ content: `Unknown subcommand: ${sub}`, ephemeral: true });
   }

@@ -23,6 +23,21 @@ export function moodLabel(mood: Mood): string {
   return `${MOOD_EMOJI[mood]} ${mood}`;
 }
 
+function formatUsd(v: number | null | undefined): string {
+  if (v == null || !Number.isFinite(v)) return '—';
+  const abs = Math.abs(v);
+  if (abs >= 1_000_000) return `$${(v / 1_000_000).toFixed(2)}M`;
+  if (abs >= 1_000) return `$${(v / 1_000).toFixed(1)}k`;
+  return `$${v.toFixed(2)}`;
+}
+
+function formatPriceChange(pct: number | null | undefined): string {
+  if (pct == null || !Number.isFinite(pct)) return '⚪️ —';
+  const emoji = pct > 0.01 ? '🟢' : pct < -0.01 ? '🔴' : '⚪️';
+  const sign = pct > 0 ? '+' : '';
+  return `${emoji} ${sign}${pct.toFixed(2)}%`;
+}
+
 export function statsEmbed(
   bagimon: Bagimon,
   parentCount: number,
@@ -31,7 +46,10 @@ export function statsEmbed(
   const bornMs = Date.parse(bagimon.born_at);
   const days = Math.max(0, Math.floor((Date.now() - bornMs) / 86_400_000));
   const lastActivityTs = Math.floor(Date.parse(bagimon.last_activity_at) / 1000);
-  const display = bagimon.coin_symbol ? `$${bagimon.coin_symbol}` : shortMint(bagimon.coin_mint);
+  const nameLabel = bagimon.coin_name ?? null;
+  const display = bagimon.coin_symbol
+    ? `$${bagimon.coin_symbol}${nameLabel ? ` (${nameLabel})` : ''}`
+    : shortMint(bagimon.coin_mint);
   const embed = new EmbedBuilder()
     .setTitle(`Bagimon — ${display}`)
     .setColor(MOOD_COLOR[bagimon.current_mood]);
@@ -42,6 +60,19 @@ export function statsEmbed(
     { name: 'Mood', value: moodLabel(bagimon.current_mood), inline: true },
     { name: 'Age', value: `${days} day${days === 1 ? '' : 's'}`, inline: true },
     { name: 'Parents', value: String(parentCount), inline: true },
+    {
+      name: '24h price',
+      value: formatPriceChange(bagimon.last_price_change_24h_pct),
+      inline: true,
+    },
+    { name: '24h volume', value: formatUsd(bagimon.last_volume24h_usd), inline: true },
+    {
+      name: 'Last updated',
+      value: bagimon.last_stats_at
+        ? `<t:${Math.floor(Date.parse(bagimon.last_stats_at) / 1000)}:R>`
+        : 'Not yet polled',
+      inline: true,
+    },
     { name: 'Coin mint', value: shortMint(bagimon.coin_mint), inline: false },
     { name: 'Last activity', value: `<t:${lastActivityTs}:R>`, inline: false },
   );

@@ -35,6 +35,12 @@ importers:
       '@anthropic-ai/sdk':
         specifier: ^0.27.0
         version: 0.27.3
+      '@bagimon/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
+      '@bagimon/coin-data':
+        specifier: workspace:*
+        version: link:../../packages/coin-data
       '@bagimon/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -107,7 +113,48 @@ importers:
         specifier: ^5.4.0
         version: 5.9.3
 
-  packages/art: {}
+  packages/ai:
+    dependencies:
+      '@anthropic-ai/sdk':
+        specifier: ^0.27.0
+        version: 0.27.3
+      '@bagimon/shared':
+        specifier: workspace:*
+        version: link:../shared
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+    devDependencies:
+      '@types/node':
+        specifier: ^20.11.0
+        version: 20.19.41
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@20.19.41)
+
+  packages/art:
+    devDependencies:
+      sharp:
+        specifier: ^0.33.5
+        version: 0.33.5
+      tsx:
+        specifier: ^4.19.2
+        version: 4.22.0
+
+  packages/coin-data:
+    devDependencies:
+      '@types/node':
+        specifier: ^20.11.0
+        version: 20.19.41
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@20.19.41)
 
   packages/db:
     dependencies:

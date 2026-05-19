@@ -113,6 +113,36 @@ export class BagimonRepository {
     return data;
   }
 
+  async findAllAlive(): Promise<Bagimon[]> {
+    const { data, error } = await this.client
+      .from('bagimons')
+      .select()
+      .eq('is_alive', true);
+    if (error) throw new Error(`findAllAlive failed: ${error.message}`);
+    return data ?? [];
+  }
+
+  async updateStats(
+    id: string,
+    stats: Partial<
+      Pick<
+        Bagimon,
+        | 'coin_symbol'
+        | 'coin_name'
+        | 'last_stats_at'
+        | 'last_price_usd'
+        | 'last_volume24h_usd'
+        | 'last_price_change_24h_pct'
+      >
+    >,
+  ): Promise<void> {
+    const { error } = await this.client
+      .from('bagimons')
+      .update({ ...stats, updated_at: new Date().toISOString() })
+      .eq('id', id);
+    if (error) throw new Error(`updateStats failed: ${error.message}`);
+  }
+
   async touchActivity(id: string): Promise<void> {
     const { error } = await this.client
       .from('bagimons')

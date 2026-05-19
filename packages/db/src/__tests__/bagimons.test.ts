@@ -32,6 +32,10 @@ function makeBagimon(overrides: Partial<Bagimon> = {}): Bagimon {
     spawned_by_discord_user_id: 'user-1',
     created_at: now,
     updated_at: now,
+    last_stats_at: null,
+    last_price_usd: null,
+    last_volume24h_usd: null,
+    last_price_change_24h_pct: null,
     ...overrides,
   };
 }

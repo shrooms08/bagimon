@@ -94,6 +94,7 @@ Bagimon/
 │   ├── shared/              # Shared types, enums, constants, pure utility fns
 │   │                        # (Bagimon assembly logic, mood transitions live here)
 │   ├── db/                  # Supabase client + generated DB types
+│   ├── coin-data/           # DexScreener / Jupiter / Helius fetchers + CoinStatsService
 │   └── art/                 # Hand-drawn Pixelorama PNG assets + assembly metadata
 │       ├── assets/          # Raw PNG layers (body, eyes, mouth, accessories)
 │       └── metadata/        # JSON describing layer composition rules
@@ -277,6 +278,21 @@ Practical implications:
   variants each; 3 accessories (`eyepatch`, `glasses`, `partyhat`). Importer
   script (`pnpm --filter @bagimon/art import`) copies + downscales from
   source assets. Migration `0002_phase_2_5_wipe.sql` wipes the pre-2.5 row.
+- ✅ **Phase 3 — Live coin data + mood transitions** — `@bagimon/coin-data`
+  package with `DexScreenerFetcher` (primary), `JupiterFetcher` (price-only
+  fallback), and `HeliusFetcher` (stub for Phase 6). `CoinStatsService`
+  orchestrates the fallback chain with a 60s in-memory cache. Pure
+  `computeMood` rules engine in `@bagimon/shared` with tunable thresholds
+  in `MOOD_THRESHOLDS`. `MoodLoop` polls every 30 min from inside the
+  Discord bot process, recomputes mood per alive Bagimon, persists
+  `mood_transitions` rows on change, and caches latest stats on `bagimons`
+  via migration `0003_add_coin_stats_columns.sql`. New `/bagimon refresh`
+  triggers a tick on demand (rate limited per user). `/bagimon stats`
+  embed now shows symbol, 24h price change %, 24h volume, and last-updated
+  timestamp. `/bagimon pet` picks species-specific lines ~30% of the time.
+- **Mood thresholds are tunable constants in
+  `packages/shared/src/bagimon/mood-rules.ts`. Adjust as we observe real
+  Bags.fm coin behavior — don't bake them into business logic elsewhere.**
 
 ## 13. Discord bot operations
 
@@ -293,5 +309,5 @@ Practical implications:
 
 ---
 
-*Last updated: Phase 2.5. Update this file whenever a phase completes
+*Last updated: Phase 3. Update this file whenever a phase completes
 or a core assumption changes.*
