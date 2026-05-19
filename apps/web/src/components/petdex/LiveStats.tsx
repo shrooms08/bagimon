@@ -6,6 +6,9 @@ import type { PetdexBagimon } from '../../lib/types';
 export function LiveStats({ bagimon }: { bagimon: PetdexBagimon }) {
   const change = bagimon.priceChange24hPct;
   const direction = change == null ? 'flat' : change > 0 ? 'up' : change < 0 ? 'down' : 'flat';
+  // A brand-new Bagimon may have a current price snapshot but no 24h
+  // comparison window yet. Surface that explicitly instead of "—".
+  const isNewListing = change == null && bagimon.priceUsd != null;
   return (
     <section aria-label="Live stats">
       <h2 className="section-title">LIVE STATS</h2>
@@ -18,13 +21,14 @@ export function LiveStats({ bagimon }: { bagimon: PetdexBagimon }) {
                 styles.value,
                 direction === 'up' ? styles.up : '',
                 direction === 'down' ? styles.down : '',
+                isNewListing ? styles.newListing : '',
               ]
                 .filter(Boolean)
                 .join(' ')}
             >
               {direction === 'up' ? <span className={styles.arrowUp} /> : null}
               {direction === 'down' ? <span className={styles.arrowDown} /> : null}
-              {formatPercent(change)}
+              {isNewListing ? 'new' : formatPercent(change)}
             </div>
             <div className={styles.sub}>{formatUsd(bagimon.priceUsd)} USD</div>
           </div>

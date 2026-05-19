@@ -52,12 +52,15 @@ export function MoodHistory({ segments, bornAt }: MoodHistoryProps) {
   const now = new Date();
   const computed = computeSegments(segments, bornAt, now);
   const ageLabel = `${dayCount(bornAt, now)}d ago`;
+  // A Bagimon with only its spawn transition (or none) has no meaningful
+  // history to plot yet — show a quiet message instead of a single bar.
+  const sparse = segments.length <= 1;
   return (
     <section aria-label="Mood history">
       <h2 className="section-title">MOOD HISTORY</h2>
       <Panel className={styles.wrap}>
-        {computed.length === 0 ? (
-          <p className={styles.empty}>No mood history yet.</p>
+        {sparse ? (
+          <p className={styles.empty}>Mood history will appear after a few days.</p>
         ) : (
           <>
             <div className={styles.ribbon}>

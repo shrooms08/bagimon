@@ -50,6 +50,11 @@
 .down {
   color: var(--bad);
 }
+.newListing {
+  color: var(--ink-soft);
+  font-size: 14px;
+  text-transform: lowercase;
+}
 .valueSmall {
   font-size: 14px;
 }
