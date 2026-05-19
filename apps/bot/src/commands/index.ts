@@ -15,6 +15,7 @@ import { handleStats } from './stats.js';
 import { handlePet } from './pet.js';
 import { handleLore } from './lore.js';
 import { handleRefresh } from './refresh.js';
+import { handleLink } from './link.js';
 import type { MoodLoop } from '../mood-loop/index.js';
 
 export interface CommandContext {
@@ -61,6 +62,12 @@ export const bagimonCommand = new SlashCommandBuilder()
       .addStringOption((o) =>
         o.setName('mint').setDescription('Refresh only this coin mint (optional)'),
       ),
+  )
+  .addSubcommand((s) =>
+    s
+      .setName('link')
+      .setDescription('Share the public Petdex page for this Bagimon.')
+      .addStringOption((o) => o.setName('mint').setDescription('Coin mint (optional if only one)')),
   );
 
 export const commandDefinitions: RESTPostAPIChatInputApplicationCommandsJSONBody[] = [
@@ -91,6 +98,8 @@ export async function dispatchCommand(
       return handleLore(interaction, repo);
     case 'refresh':
       return handleRefresh(interaction, ctx.moodLoop);
+    case 'link':
+      return handleLink(interaction, repo);
     default:
       await interaction.reply({ content: `Unknown subcommand: ${sub}`, ephemeral: true });
   }

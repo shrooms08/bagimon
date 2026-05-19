@@ -1,0 +1,2 @@
+// Test shim for the Next.js `server-only` marker package.
+export {};

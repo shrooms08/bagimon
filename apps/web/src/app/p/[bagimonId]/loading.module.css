@@ -1,0 +1,24 @@
+.shell {
+  min-height: 100vh;
+  background: var(--bg);
+  filter: saturate(0.7);
+}
+.pulse {
+  margin-bottom: 24px;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+.pulseInner {
+  height: 320px;
+}
+.pulseShort {
+  height: 120px;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}

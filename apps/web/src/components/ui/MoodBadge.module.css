@@ -1,0 +1,35 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 22px;
+  padding: 11px 16px 13px;
+  background: var(--accent);
+  color: var(--paper);
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  box-shadow:
+    0 -3px 0 0 var(--shadow),
+    0 3px 0 0 var(--shadow),
+    -3px 0 0 0 var(--shadow),
+    3px 0 0 0 var(--shadow),
+    inset 3px 3px 0 0 color-mix(in oklab, var(--accent) 55%, white 45%),
+    inset -3px -3px 0 0 color-mix(in oklab, var(--accent) 55%, black 45%),
+    0 5px 0 0 color-mix(in oklab, var(--shadow) 80%, transparent);
+  clip-path: polygon(
+    6px 0,
+    calc(100% - 6px) 0,
+    100% 6px,
+    100% calc(100% - 6px),
+    calc(100% - 6px) 100%,
+    6px 100%,
+    0 calc(100% - 6px),
+    0 6px
+  );
+}
+.emoji {
+  font-size: 16px;
+  line-height: 1;
+  filter: drop-shadow(1px 1px 0 rgba(0, 0, 0, 0.15));
+}

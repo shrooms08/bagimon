@@ -293,6 +293,19 @@ Practical implications:
 - **Mood thresholds are tunable constants in
   `packages/shared/src/bagimon/mood-rules.ts`. Adjust as we observe real
   Bags.fm coin behavior — don't bake them into business logic elsewhere.**
+- ✅ **Phase 5 — Petdex web** — `apps/web` Next.js 14 (App Router) site
+  with a public Petdex page at `/p/[bagimonId]`. RSC fetches data via
+  Supabase anon key + RLS (migration `0005_public_read_rls.sql` opens
+  read-only access to bagimons, interactions, mood_transitions,
+  bagimon_parents — `ai_calls` stays service-role only). Five
+  hand-crafted CSS palettes swap via `data-mood` on a page wrapper.
+  Bagimon PNGs render on-demand at `/api/bagimon/[id]/image` (1h
+  cached) by reusing `assembleBagimon`; OG cards at
+  `/p/[id]/opengraph-image` via `next/og`. `SPECIES_TYPE` map added to
+  `@bagimon/shared`. New `/bagimon link` slash command posts the
+  public URL with an embed Discord/Twitter unfurls. Homepage is a
+  minimal pixel splash with an install CTA. CSS Modules per component
+  — no Tailwind.
 
 ## 13. Discord bot operations
 
@@ -309,5 +322,5 @@ Practical implications:
 
 ---
 
-*Last updated: Phase 3. Update this file whenever a phase completes
+*Last updated: Phase 5. Update this file whenever a phase completes
 or a core assumption changes.*

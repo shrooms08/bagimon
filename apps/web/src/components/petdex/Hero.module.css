@@ -1,0 +1,169 @@
+.hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-items: center;
+  padding: 28px 24px 32px;
+}
+@media (min-width: 720px) {
+  .hero {
+    grid-template-columns: auto 1fr;
+    padding: 36px 36px 40px;
+    gap: 36px;
+  }
+}
+
+.spriteBox {
+  width: 100%;
+  max-width: 384px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  background: color-mix(in oklab, var(--panel-fill) 65%, white 35%);
+  border: 4px solid var(--shadow);
+  box-shadow:
+    inset 0 0 0 4px var(--shadow-soft),
+    inset 0 0 0 8px color-mix(in oklab, var(--panel-fill) 55%, white 45%);
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+@media (min-width: 720px) {
+  .spriteBox {
+    width: 384px;
+    height: 384px;
+  }
+}
+.spriteImage {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  display: block;
+  object-fit: contain;
+}
+.spriteBox::before,
+.spriteBox::after,
+.corners::before,
+.corners::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background:
+    linear-gradient(var(--shadow), var(--shadow)) left top / 100% 4px no-repeat,
+    linear-gradient(var(--shadow), var(--shadow)) left top / 4px 100% no-repeat;
+  pointer-events: none;
+}
+.spriteBox::before {
+  top: 4px;
+  left: 4px;
+}
+.spriteBox::after {
+  top: 4px;
+  right: 4px;
+  transform: scaleX(-1);
+}
+.corners::before {
+  bottom: 4px;
+  left: 4px;
+  transform: scaleY(-1);
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background:
+    linear-gradient(var(--shadow), var(--shadow)) left top / 100% 4px no-repeat,
+    linear-gradient(var(--shadow), var(--shadow)) left top / 4px 100% no-repeat;
+}
+.corners::after {
+  bottom: 4px;
+  right: 4px;
+  transform: scale(-1, -1);
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background:
+    linear-gradient(var(--shadow), var(--shadow)) left top / 100% 4px no-repeat,
+    linear-gradient(var(--shadow), var(--shadow)) left top / 4px 100% no-repeat;
+}
+.corners {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.meta {
+  text-align: center;
+}
+@media (min-width: 720px) {
+  .meta {
+    text-align: left;
+  }
+}
+.coinName {
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: clamp(40px, 9vw, 72px);
+  line-height: 1;
+  color: var(--ink);
+  text-shadow:
+    4px 0 0 var(--accent),
+    4px 4px 0 var(--shadow);
+  letter-spacing: 1px;
+  margin-top: 6px;
+  word-break: break-word;
+}
+.speciesBlock {
+  margin-top: 22px;
+  display: grid;
+  gap: 10px;
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  line-height: 1.3;
+}
+.sr {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+@media (min-width: 720px) {
+  .sr {
+    justify-content: flex-start;
+  }
+}
+.key {
+  color: var(--ink-soft);
+  font-size: 11px;
+  min-width: 84px;
+  text-align: right;
+}
+@media (max-width: 719px) {
+  .key {
+    text-align: center;
+    min-width: 0;
+  }
+}
+.val {
+  color: var(--ink);
+  font-size: 13px;
+}
+.sep {
+  color: var(--accent);
+  margin: 0 4px;
+}
+.tagline {
+  margin-top: 18px;
+  font-style: italic;
+  color: var(--ink-soft);
+  font-size: 15px;
+  max-width: 38ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+@media (min-width: 720px) {
+  .tagline {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}

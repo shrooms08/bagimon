@@ -1,0 +1,182 @@
+/* ----------------------------------------------------------------
+   PALETTE — default = HAPPY. Change [data-mood] on <html> to swap.
+---------------------------------------------------------------- */
+:root,
+[data-mood='happy'] {
+  --bg: #f7ecd2;
+  --bg-2: #f0dfb6;
+  --paper: #fff7e2;
+  --ink: #2c2418;
+  --ink-soft: #5b4a30;
+  --accent: #e87a5e;
+  --accent-dark: #b9523a;
+  --highlight: #ffd066;
+  --good: #5fa340;
+  --bad: #b9523a;
+  --shadow: #2c2418;
+  --shadow-soft: #c9a96a;
+  --panel-fill: #fff7e2;
+  --ribbon-base: #efd9a2;
+  --mood-swatch: #e87a5e;
+}
+[data-mood='thriving'] {
+  --bg: #fff3c8;
+  --bg-2: #f7dd8e;
+  --paper: #fffae0;
+  --ink: #2a2310;
+  --ink-soft: #6a531a;
+  --accent: #e9a92a;
+  --accent-dark: #a87308;
+  --highlight: #76c24a;
+  --good: #5fa340;
+  --bad: #c66a2a;
+  --shadow: #2a2310;
+  --shadow-soft: #d6b25a;
+  --panel-fill: #fffae0;
+  --ribbon-base: #f1e2a4;
+  --mood-swatch: #e9a92a;
+}
+[data-mood='hungry'] {
+  --bg: #e8d9b6;
+  --bg-2: #d8c08c;
+  --paper: #f1e3bf;
+  --ink: #2f200f;
+  --ink-soft: #6a4f2a;
+  --accent: #c0673a;
+  --accent-dark: #884526;
+  --highlight: #b58a3a;
+  --good: #7a8a2e;
+  --bad: #884526;
+  --shadow: #2f200f;
+  --shadow-soft: #a88a4a;
+  --panel-fill: #f1e3bf;
+  --ribbon-base: #d4be86;
+  --mood-swatch: #c0673a;
+}
+[data-mood='sick'] {
+  --bg: #d8d4dc;
+  --bg-2: #bfb8c8;
+  --paper: #e6e1e8;
+  --ink: #2b1f2e;
+  --ink-soft: #564860;
+  --accent: #8a5c84;
+  --accent-dark: #5a3a58;
+  --highlight: #6a9a96;
+  --good: #6a9a96;
+  --bad: #8a5c84;
+  --shadow: #2b1f2e;
+  --shadow-soft: #a89cb0;
+  --panel-fill: #e6e1e8;
+  --ribbon-base: #c2bcce;
+  --mood-swatch: #8a5c84;
+}
+[data-mood='dying'] {
+  --bg: #cfcabe;
+  --bg-2: #b5b0a4;
+  --paper: #ddd8cc;
+  --ink: #3a352c;
+  --ink-soft: #6c655a;
+  --accent: #9a8a70;
+  --accent-dark: #6e5e48;
+  --highlight: #8a8270;
+  --good: #7a8270;
+  --bad: #8a6a58;
+  --shadow: #3a352c;
+  --shadow-soft: #a8a292;
+  --panel-fill: #ddd8cc;
+  --ribbon-base: #b9b3a4;
+  --mood-swatch: #8a8270;
+}
+
+* {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-nunito), 'Nunito', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  background-image: radial-gradient(
+    ellipse at top,
+    color-mix(in oklab, var(--bg) 92%, white) 0%,
+    var(--bg) 70%
+  );
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease;
+  image-rendering: pixelated;
+}
+
+.pixel {
+  font-family: var(--font-press-start), 'Press Start 2P', 'Courier New', monospace;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+}
+.eyebrow {
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+
+.page {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+  position: relative;
+  z-index: 1;
+}
+section + section {
+  margin-top: 28px;
+}
+
+.section-title {
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: var(--ink);
+  letter-spacing: 1px;
+  margin: 0 4px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-title::before {
+  content: '▸';
+  color: var(--accent);
+  font-size: 14px;
+}
+
+/* mood palette colors fixed for ribbon swatches regardless of active palette */
+.swatch-happy {
+  background: #e87a5e;
+  color: #e87a5e;
+}
+.swatch-thriving {
+  background: #e9a92a;
+  color: #e9a92a;
+}
+.swatch-hungry {
+  background: #c0673a;
+  color: #c0673a;
+}
+.swatch-sick {
+  background: #8a5c84;
+  color: #8a5c84;
+}
+.swatch-dying {
+  background: #8a8270;
+  color: #8a8270;
+}

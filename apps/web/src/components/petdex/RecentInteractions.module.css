@@ -1,0 +1,81 @@
+.dialogs {
+  display: grid;
+  gap: 18px;
+}
+.dialog {
+  padding: 14px 18px 16px;
+}
+.speaker {
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 11px;
+  color: var(--accent-dark);
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+.text {
+  font-size: 15px;
+  color: var(--ink);
+  line-height: 1.55;
+}
+.firstText::after {
+  content: '▾';
+  display: inline-block;
+  margin-left: 6px;
+  color: var(--accent);
+  animation: bounce 0.8s steps(2) infinite;
+  font-size: 12px;
+}
+@keyframes bounce {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(2px);
+  }
+}
+.time {
+  margin-top: 12px;
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 9px;
+  color: var(--ink-soft);
+}
+.handle {
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: var(--ink);
+  background: var(--highlight);
+  padding: 4px 7px 5px;
+  line-height: 1;
+  box-shadow:
+    0 -2px 0 0 var(--shadow),
+    0 2px 0 0 var(--shadow),
+    -2px 0 0 0 var(--shadow),
+    2px 0 0 0 var(--shadow),
+    inset 2px 2px 0 0 color-mix(in oklab, var(--highlight) 60%, white 40%),
+    inset -2px -2px 0 0 color-mix(in oklab, var(--highlight) 60%, black 40%);
+  clip-path: polygon(
+    3px 0,
+    calc(100% - 3px) 0,
+    100% 3px,
+    100% calc(100% - 3px),
+    calc(100% - 3px) 100%,
+    3px 100%,
+    0 calc(100% - 3px),
+    0 3px
+  );
+}
+.handle::before {
+  content: '@';
+  color: var(--ink-soft);
+  margin-right: 1px;
+}
+.empty {
+  font-style: italic;
+  color: var(--ink-soft);
+  padding: 8px 0;
+  text-align: center;
+}

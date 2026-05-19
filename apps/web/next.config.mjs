@@ -1,0 +1,30 @@
+// @ts-check
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { config as loadDotenv } from 'dotenv';
+
+const here = dirname(fileURLToPath(import.meta.url));
+// Web app reads from the repo-root .env (same as the bot) so we don't have
+// to duplicate Supabase credentials in apps/web/.env.local.
+loadDotenv({ path: resolve(here, '../../.env') });
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  experimental: {
+    serverComponentsExternalPackages: ['sharp'],
+  },
+  // Workspace packages use ESM-style `.js` extensions in their .ts imports.
+  // Next's webpack needs an extensionAlias to resolve those to the .ts files.
+  webpack: (config) => {
+    config.resolve.extensionAlias = {
+      ...(config.resolve.extensionAlias ?? {}),
+      '.js': ['.ts', '.tsx', '.js', '.jsx'],
+    };
+    return config;
+  },
+  // Make sure the workspace TS sources are transpiled by Next's pipeline.
+  transpilePackages: ['@bagimon/shared', '@bagimon/db'],
+};
+
+export default nextConfig;

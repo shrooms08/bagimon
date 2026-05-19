@@ -1,0 +1,13 @@
+.shell {
+  min-height: 100vh;
+  background: var(--bg);
+  background-image: radial-gradient(
+    ellipse at top,
+    color-mix(in oklab, var(--bg) 92%, white) 0%,
+    var(--bg) 70%
+  );
+  color: var(--ink);
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease;
+}

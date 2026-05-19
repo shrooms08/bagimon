@@ -1,0 +1,76 @@
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (min-width: 720px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.tile {
+  background: var(--bg-2);
+  padding: 14px;
+  box-shadow:
+    0 -3px 0 0 var(--shadow),
+    0 3px 0 0 var(--shadow),
+    -3px 0 0 0 var(--shadow),
+    3px 0 0 0 var(--shadow),
+    inset 0 0 0 3px var(--shadow-soft);
+  clip-path: polygon(
+    6px 0,
+    calc(100% - 6px) 0,
+    100% 6px,
+    100% calc(100% - 6px),
+    calc(100% - 6px) 100%,
+    6px 100%,
+    0 calc(100% - 6px),
+    0 6px
+  );
+}
+.label {
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: var(--ink-soft);
+  letter-spacing: 0.5px;
+}
+.value {
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 18px;
+  color: var(--ink);
+  margin-top: 10px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  word-break: break-all;
+}
+.up {
+  color: var(--good);
+}
+.down {
+  color: var(--bad);
+}
+.valueSmall {
+  font-size: 14px;
+}
+.sub {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--ink-soft);
+  font-family: var(--font-nunito), 'Nunito', sans-serif;
+}
+.arrowUp,
+.arrowDown {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  margin-right: 2px;
+  vertical-align: -2px;
+}
+.arrowUp {
+  clip-path: polygon(50% 0, 100% 50%, 75% 50%, 75% 100%, 25% 100%, 25% 50%, 0 50%);
+}
+.arrowDown {
+  clip-path: polygon(50% 100%, 100% 50%, 75% 50%, 75% 0, 25% 0, 25% 50%, 0 50%);
+}

@@ -1,0 +1,155 @@
+.card {
+  padding: 18px 20px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 720px) {
+  .card {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+}
+.coinId {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.sym {
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: var(--ink);
+}
+.full {
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+.mintRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.mint {
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 9px;
+  background: var(--bg-2);
+  padding: 8px 10px;
+  color: var(--ink);
+  box-shadow:
+    0 -2px 0 0 var(--shadow),
+    0 2px 0 0 var(--shadow),
+    -2px 0 0 0 var(--shadow),
+    2px 0 0 0 var(--shadow);
+  clip-path: polygon(
+    4px 0,
+    calc(100% - 4px) 0,
+    100% 4px,
+    100% calc(100% - 4px),
+    calc(100% - 4px) 100%,
+    4px 100%,
+    0 calc(100% - 4px),
+    0 4px
+  );
+}
+.miniBtn {
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 11px;
+  padding: 12px 16px;
+  background: var(--accent);
+  color: var(--paper);
+  border: 0;
+  cursor: pointer;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  box-shadow:
+    0 -3px 0 0 var(--shadow),
+    0 3px 0 0 var(--shadow),
+    -3px 0 0 0 var(--shadow),
+    3px 0 0 0 var(--shadow),
+    inset 3px 3px 0 0 color-mix(in oklab, var(--accent) 55%, white 45%),
+    inset -3px -3px 0 0 color-mix(in oklab, var(--accent) 55%, black 45%),
+    0 5px 0 0 color-mix(in oklab, var(--shadow) 80%, transparent);
+  clip-path: polygon(
+    6px 0,
+    calc(100% - 6px) 0,
+    100% 6px,
+    100% calc(100% - 6px),
+    calc(100% - 6px) 100%,
+    6px 100%,
+    0 calc(100% - 6px),
+    0 6px
+  );
+  transition:
+    transform 0.08s ease,
+    filter 0.12s ease;
+}
+.miniBtn:hover {
+  filter: brightness(1.07);
+  transform: translateY(-1px);
+}
+.miniBtn:active {
+  transform: translateY(2px);
+  filter: brightness(0.95);
+}
+.copied {
+  display: inline-block;
+  margin-left: 8px;
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: var(--good);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.copied.show {
+  opacity: 1;
+}
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.extLink {
+  text-decoration: none;
+  color: var(--ink);
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 11px;
+  padding: 12px 16px;
+  background: var(--highlight);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1;
+  box-shadow:
+    0 -3px 0 0 var(--shadow),
+    0 3px 0 0 var(--shadow),
+    -3px 0 0 0 var(--shadow),
+    3px 0 0 0 var(--shadow),
+    inset 3px 3px 0 0 color-mix(in oklab, var(--highlight) 60%, white 40%),
+    inset -3px -3px 0 0 color-mix(in oklab, var(--highlight) 60%, black 40%),
+    0 5px 0 0 color-mix(in oklab, var(--shadow) 80%, transparent);
+  clip-path: polygon(
+    6px 0,
+    calc(100% - 6px) 0,
+    100% 6px,
+    100% calc(100% - 6px),
+    calc(100% - 6px) 100%,
+    6px 100%,
+    0 calc(100% - 6px),
+    0 6px
+  );
+  transition:
+    transform 0.08s ease,
+    filter 0.12s ease;
+}
+.extLink:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+.extLink:active {
+  transform: translateY(2px);
+  filter: brightness(0.95);
+}

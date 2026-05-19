@@ -5,6 +5,13 @@ export type Rarity = 'common' | 'uncommon' | 'rare' | 'legendary';
 export const SPECIES_IDS: readonly SpeciesId[] = ['ghotosai', 'potatiki'] as const;
 export const MOODS: readonly Mood[] = ['happy', 'hungry', 'sick', 'thriving', 'dying'] as const;
 
+// Pokemon-style "type" labels per species. Display metadata only — never
+// consumed by gameplay logic.
+export const SPECIES_TYPE: Record<SpeciesId, string> = {
+  ghotosai: 'SPIRIT/MIST',
+  potatiki: 'STARCH/SPIRIT',
+};
+
 export interface BagimonTraits {
   species: SpeciesId;
   accessory: string | null;
