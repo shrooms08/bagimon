@@ -15,6 +15,7 @@ const SWATCH: Record<Mood, string> = {
 interface MoodHistoryProps {
   segments: PetdexMoodSegment[];
   bornAt: Date;
+  isAlive?: boolean;
 }
 
 interface Computed {
@@ -48,10 +49,11 @@ function computeSegments(segments: PetdexMoodSegment[], bornAt: Date, now: Date)
   return result;
 }
 
-export function MoodHistory({ segments, bornAt }: MoodHistoryProps) {
+export function MoodHistory({ segments, bornAt, isAlive = true }: MoodHistoryProps) {
   const now = new Date();
   const computed = computeSegments(segments, bornAt, now);
   const ageLabel = `${dayCount(bornAt, now)}d ago`;
+  const endLabel = isAlive ? 'now' : '✕';
   // A Bagimon with only its spawn transition (or none) has no meaningful
   // history to plot yet — show a quiet message instead of a single bar.
   const sparse = segments.length <= 1;
@@ -82,7 +84,7 @@ export function MoodHistory({ segments, bornAt }: MoodHistoryProps) {
             </div>
             <div className={styles.axis}>
               <span>{ageLabel}</span>
-              <span>now</span>
+              <span>{endLabel}</span>
             </div>
           </>
         )}

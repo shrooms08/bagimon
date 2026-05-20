@@ -83,3 +83,70 @@ export function ambiguousMintReply(mints: readonly string[]): string {
   const list = mints.map((m) => `• \`${shortMint(m)}\``).join('\n');
   return `This server has multiple Bagimons. Specify a \`mint\`:\n${list}`;
 }
+
+const DEFAULT_PETDEX_BASE = 'https://bagimon.vercel.app';
+const GREY = 0x8a8270;
+
+export function petdexUrlFor(bagimonId: string): string {
+  const base = (process.env.PETDEX_BASE_URL ?? DEFAULT_PETDEX_BASE).replace(/\/$/, '');
+  return `${base}/p/${bagimonId}`;
+}
+
+function diedDaysAgo(diedAtIso: string | null): number {
+  if (!diedAtIso) return 0;
+  const t = Date.parse(diedAtIso);
+  if (!Number.isFinite(t)) return 0;
+  return Math.max(0, Math.floor((Date.now() - t) / 86_400_000));
+}
+
+export function memorialReply(bagimon: Bagimon, speciesDisplayName: string): {
+  embeds: EmbedBuilder[];
+} {
+  const symbol = bagimon.coin_symbol ? `$${bagimon.coin_symbol}` : 'Bagimon';
+  const days = diedDaysAgo(bagimon.died_at);
+  const url = petdexUrlFor(bagimon.id);
+  const embed = new EmbedBuilder()
+    .setColor(GREY)
+    .setTitle(`💀 ${symbol} — in memoriam`)
+    .setDescription(
+      `${speciesDisplayName} is no longer with us. ${symbol} departed ${days === 0 ? 'today' : `${days} day${days === 1 ? '' : 's'} ago`}.`,
+    )
+    .setFooter({ text: `Their Petdex page remains as a memorial: ${url}` });
+  return { embeds: [embed] };
+}
+
+export function memorialStatsEmbed(bagimon: Bagimon, speciesDisplayName: string): EmbedBuilder {
+  const symbol = bagimon.coin_symbol ? `$${bagimon.coin_symbol}` : shortMint(bagimon.coin_mint);
+  const bornMs = Date.parse(bagimon.born_at);
+  const diedMs = bagimon.died_at ? Date.parse(bagimon.died_at) : Date.now();
+  const lifespanDays = Math.max(0, Math.floor((diedMs - bornMs) / 86_400_000));
+  const url = petdexUrlFor(bagimon.id);
+  return new EmbedBuilder()
+    .setColor(GREY)
+    .setTitle(`💀 ${symbol} — in memoriam`)
+    .addFields(
+      { name: 'Species', value: speciesDisplayName, inline: true },
+      { name: 'Final mood', value: bagimon.final_mood ?? 'dying', inline: true },
+      {
+        name: 'Lifespan',
+        value: `${lifespanDays} day${lifespanDays === 1 ? '' : 's'}`,
+        inline: true,
+      },
+      {
+        name: 'Died',
+        value: bagimon.died_at ? `<t:${Math.floor(diedMs / 1000)}:D>` : 'unknown',
+        inline: true,
+      },
+      {
+        name: 'Final 24h volume',
+        value: formatUsd(bagimon.final_volume24h_usd),
+        inline: true,
+      },
+      {
+        name: 'Final price',
+        value: formatUsd(bagimon.final_price_usd),
+        inline: true,
+      },
+    )
+    .setFooter({ text: `Memorial: ${url}` });
+}

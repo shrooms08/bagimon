@@ -86,8 +86,15 @@ export async function fetchBagimonForPetdexWith(
       coinName: bagimon.coin_name,
       currentMood: bagimon.current_mood as Mood,
       isAlive: bagimon.is_alive,
+      diedAt: bagimon.died_at ? new Date(bagimon.died_at) : null,
+      finalMood: (bagimon.final_mood as Mood | null) ?? null,
+      finalPriceUsd: bagimon.final_price_usd,
+      finalVolume24hUsd: bagimon.final_volume24h_usd,
       bornAt,
       ageDays: dayCount(bornAt),
+      lifespanDays: bagimon.died_at
+        ? Math.max(0, Math.floor((Date.parse(bagimon.died_at) - bornAt.getTime()) / 86_400_000))
+        : dayCount(bornAt),
       priceUsd: bagimon.last_price_usd,
       priceChange24hPct: bagimon.last_price_change_24h_pct,
       volume24hUsd: bagimon.last_volume24h_usd,

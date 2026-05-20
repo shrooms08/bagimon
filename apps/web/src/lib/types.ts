@@ -12,8 +12,13 @@ export interface PetdexBagimon {
   coinName: string | null;
   currentMood: Mood;
   isAlive: boolean;
+  diedAt: Date | null;
+  finalMood: Mood | null;
+  finalPriceUsd: number | null;
+  finalVolume24hUsd: number | null;
   bornAt: Date;
   ageDays: number;
+  lifespanDays: number;
   priceUsd: number | null;
   priceChange24hPct: number | null;
   volume24hUsd: number | null;

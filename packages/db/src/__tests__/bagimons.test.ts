@@ -36,6 +36,10 @@ function makeBagimon(overrides: Partial<Bagimon> = {}): Bagimon {
     last_price_usd: null,
     last_volume24h_usd: null,
     last_price_change_24h_pct: null,
+    death_announced: false,
+    final_mood: null,
+    final_price_usd: null,
+    final_volume24h_usd: null,
     ...overrides,
   };
 }
@@ -74,36 +78,28 @@ function makeMockClient(options: MockOptions = {}): {
     },
     update(payload: unknown) {
       captured.push({ table, op: 'update', payload });
-      return {
-        eq() {
-          return {
-            select: () => ({
-              single: async () => ({
-                data: makeBagimon({ current_mood: 'sick' }),
-                error: null,
-              }),
-            }),
-            // when no select() chained (touchActivity), the awaited eq() resolves directly
-            then: (onResolve: (v: { error: null }) => unknown) => onResolve({ error: null }),
-          };
-        },
+      const terminal = {
+        select: () => ({
+          single: async () => ({
+            data: makeBagimon({ current_mood: 'sick' }),
+            error: null,
+          }),
+        }),
+        then: (onResolve: (v: { error: null }) => unknown) => onResolve({ error: null }),
+        eq: () => terminal,
       };
+      return { eq: () => terminal };
     },
     select() {
       captured.push({ table, op: 'select' });
-      return {
-        eq() {
-          return {
-            eq() {
-              return {
-                maybeSingle: async () => ({ data: existing, error: null }),
-              };
-            },
-            maybeSingle: async () => ({ data: existing, error: null }),
-            order: async () => ({ data: existing ? [existing] : [], error: null }),
-          };
-        },
+      const inner = {
+        eq: () => inner,
+        maybeSingle: async () => ({ data: existing, error: null }),
+        order: async () => ({ data: existing ? [existing] : [], error: null }),
+        then: (onResolve: (v: { data: Bagimon[]; error: null }) => unknown) =>
+          onResolve({ data: existing ? [existing] : [], error: null }),
       };
+      return { eq: () => inner };
     },
   });
 
@@ -146,6 +142,47 @@ describe('BagimonRepository.spawn', () => {
         spawned_by_discord_user_id: 'user-1',
       }),
     ).rejects.toThrow(/already exists/);
+  });
+});
+
+describe('BagimonRepository death methods', () => {
+  it('markDead writes is_alive=false plus final snapshot, scoped to alive rows', async () => {
+    const { client, captured } = makeMockClient();
+    const repo = new BagimonRepository(client);
+    await repo.markDead('bg-1', { mood: 'dying', priceUsd: 0.001, volume24hUsd: 42 });
+    const update = captured.find((c) => c.table === 'bagimons' && c.op === 'update');
+    expect(update?.payload).toMatchObject({
+      is_alive: false,
+      final_mood: 'dying',
+      final_price_usd: 0.001,
+      final_volume24h_usd: 42,
+    });
+  });
+
+  it('markDead is idempotent (second call is a no-op against is_alive=true filter)', async () => {
+    const { client } = makeMockClient();
+    const repo = new BagimonRepository(client);
+    await repo.markDead('bg-1', { mood: 'dying', priceUsd: null, volume24hUsd: null });
+    await expect(
+      repo.markDead('bg-1', { mood: 'dying', priceUsd: null, volume24hUsd: null }),
+    ).resolves.toBeUndefined();
+  });
+
+  it('markDeathAnnounced flips death_announced', async () => {
+    const { client, captured } = makeMockClient();
+    const repo = new BagimonRepository(client);
+    await repo.markDeathAnnounced('bg-1');
+    const update = captured.find((c) => c.table === 'bagimons' && c.op === 'update');
+    expect(update?.payload).toMatchObject({ death_announced: true });
+  });
+
+  it('findUnannouncedDeaths returns the rows surfaced by the mock', async () => {
+    const dead = makeBagimon({ is_alive: false, death_announced: false });
+    const { client } = makeMockClient({ existing: dead });
+    const repo = new BagimonRepository(client);
+    const out = await repo.findUnannouncedDeaths();
+    expect(out).toHaveLength(1);
+    expect(out[0]?.is_alive).toBe(false);
   });
 });
 

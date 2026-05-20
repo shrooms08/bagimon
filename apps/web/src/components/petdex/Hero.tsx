@@ -1,11 +1,16 @@
 import { Panel } from '../ui/Panel';
 import { MoodBadge } from '../ui/MoodBadge';
+import { MemorialPlaque } from '../ui/MemorialPlaque';
 import styles from './Hero.module.css';
 import type { PetdexBagimon } from '../../lib/types';
 
 interface HeroProps {
   bagimon: PetdexBagimon;
   imageSrc: string;
+}
+
+function formatDate(d: Date): string {
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 export function Hero({ bagimon, imageSrc }: HeroProps) {
@@ -17,7 +22,7 @@ export function Hero({ bagimon, imageSrc }: HeroProps) {
         <div className={styles.corners} />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          className={styles.spriteImage}
+          className={`${styles.spriteImage} ${!bagimon.isAlive ? 'memorial-greyscale' : ''}`}
           src={imageSrc}
           alt={`${bagimon.speciesDisplayName} sprite`}
           width={384}
@@ -45,8 +50,20 @@ export function Hero({ bagimon, imageSrc }: HeroProps) {
             </span>
           </div>
         </div>
-        <MoodBadge mood={bagimon.currentMood} />
+        {bagimon.isAlive ? (
+          <MoodBadge mood={bagimon.currentMood} />
+        ) : (
+          <MemorialPlaque />
+        )}
         <p className={styles.tagline}>&ldquo;{bagimon.speciesLore}&rdquo;</p>
+        {!bagimon.isAlive && bagimon.diedAt ? (
+          <p className={styles.tagline}>
+            <em>
+              Died on {formatDate(bagimon.diedAt)}, lived for {bagimon.lifespanDays} day
+              {bagimon.lifespanDays === 1 ? '' : 's'}.
+            </em>
+          </p>
+        ) : null}
       </div>
     </Panel>
   );

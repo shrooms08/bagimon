@@ -33,6 +33,10 @@ function makeBagimon(overrides: Partial<Bagimon> = {}): Bagimon {
     last_price_usd: 0.01,
     last_volume24h_usd: 50_000,
     last_price_change_24h_pct: 4.5,
+    death_announced: false,
+    final_mood: null,
+    final_price_usd: null,
+    final_volume24h_usd: null,
     ...overrides,
   };
 }

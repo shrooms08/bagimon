@@ -94,5 +94,26 @@ describe('fetchBagimonForPetdexWith', () => {
     expect(result!.bagimon.speciesType).toMatch(/\//);
     expect(result!.moodHistory).toHaveLength(1);
     expect(result!.interactions[0]!.petterDisplayName).toBe('lila');
+    expect(result!.bagimon.isAlive).toBe(true);
+    expect(result!.bagimon.diedAt).toBeNull();
+  });
+
+  it('exposes memorial fields when the bagimon is dead', async () => {
+    const dead = {
+      ...SAMPLE_BAGIMON,
+      is_alive: false,
+      died_at: '2026-05-18T00:00:00Z',
+      final_mood: 'dying',
+      final_price_usd: 0.0001,
+      final_volume24h_usd: 42,
+    };
+    const client = mockClient({ bagimon: dead, moods: [], interactions: [] });
+    const result = await fetchBagimonForPetdexWith(client, SAMPLE_BAGIMON.id);
+    expect(result).not.toBeNull();
+    expect(result!.bagimon.isAlive).toBe(false);
+    expect(result!.bagimon.diedAt).toBeInstanceOf(Date);
+    expect(result!.bagimon.finalMood).toBe('dying');
+    expect(result!.bagimon.finalVolume24hUsd).toBe(42);
+    expect(result!.bagimon.lifespanDays).toBeGreaterThan(0);
   });
 });

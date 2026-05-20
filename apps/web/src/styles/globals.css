@@ -87,6 +87,27 @@
   --ribbon-base: #b9b3a4;
   --mood-swatch: #8a8270;
 }
+[data-mood='memorial'] {
+  --bg: #c5c2bb;
+  --bg-2: #a8a59f;
+  --paper: #d6d3cb;
+  --ink: #2f2c26;
+  --ink-soft: #5e5a52;
+  --accent: #7a766d;
+  --accent-dark: #514d46;
+  --highlight: #6c6960;
+  --good: #6c6960;
+  --bad: #6c6960;
+  --shadow: #2f2c26;
+  --shadow-soft: #95918a;
+  --panel-fill: #d6d3cb;
+  --ribbon-base: #afaca4;
+  --mood-swatch: #6c6960;
+}
+[data-mood='memorial'] img.spriteImage,
+[data-mood='memorial'] .memorial-greyscale {
+  filter: grayscale(1) sepia(0.15) contrast(0.95);
+}
 
 * {
   box-sizing: border-box;

@@ -19,6 +19,10 @@ export type Bagimon = {
   last_price_usd: number | null;
   last_volume24h_usd: number | null;
   last_price_change_24h_pct: number | null;
+  death_announced: boolean;
+  final_mood: Mood | null;
+  final_price_usd: number | null;
+  final_volume24h_usd: number | null;
 };
 
 export type MoodTransition = {

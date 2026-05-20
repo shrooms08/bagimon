@@ -1,10 +1,15 @@
-import type { BagimonRepository, Bagimon } from '@bagimon/db';
+import type {
+  BagimonRepository,
+  Bagimon,
+  MoodTransitionsRepository,
+} from '@bagimon/db';
 import type { CoinStatsService, CoinStats } from '@bagimon/coin-data';
-import { computeMood, type Mood } from '@bagimon/shared';
+import { computeMood, continuousDyingDays, type Mood } from '@bagimon/shared';
 
 export interface RunSummary {
   evaluated: number;
   moodChanged: number;
+  died: number;
   failed: number;
   durationMs: number;
 }
@@ -12,17 +17,28 @@ export interface RunSummary {
 export interface MoodLoopOptions {
   intervalMs?: number;
   concurrency?: number;
+  // Continuous-dying days before permanent death. Fractional allowed for demos.
+  deathDaysThreshold?: number;
+  // Repo used to read transition history when checking the death streak.
+  moodTransitions?: MoodTransitionsRepository;
+  // Optional hook fired after a Bagimon is marked dead — lets the bot kick the
+  // death announcer immediately rather than waiting for its next interval.
+  onDeath?: (b: Bagimon) => void | Promise<void>;
   // Allows tests to override the wall clock.
   now?: () => number;
 }
 
 const DEFAULT_INTERVAL_MS = 30 * 60 * 1000;
 const DEFAULT_CONCURRENCY = 5;
+const DEFAULT_DEATH_DAYS = 14;
 
 export class MoodLoop {
   private timer: NodeJS.Timeout | null = null;
   private readonly intervalMs: number;
   private readonly concurrency: number;
+  private readonly deathDaysThreshold: number;
+  private readonly moodTransitions: MoodTransitionsRepository | undefined;
+  private readonly onDeath: ((b: Bagimon) => void | Promise<void>) | undefined;
   private readonly now: () => number;
 
   constructor(
@@ -32,6 +48,9 @@ export class MoodLoop {
   ) {
     this.intervalMs = options.intervalMs ?? DEFAULT_INTERVAL_MS;
     this.concurrency = Math.max(1, options.concurrency ?? DEFAULT_CONCURRENCY);
+    this.deathDaysThreshold = options.deathDaysThreshold ?? DEFAULT_DEATH_DAYS;
+    this.moodTransitions = options.moodTransitions;
+    this.onDeath = options.onDeath;
     this.now = options.now ?? (() => Date.now());
   }
 
@@ -52,7 +71,7 @@ export class MoodLoop {
     try {
       const summary = await this.runOnce();
       console.info(
-        `[MoodLoop] tick complete: evaluated=${summary.evaluated} moodChanged=${summary.moodChanged} failed=${summary.failed} duration=${(summary.durationMs / 1000).toFixed(1)}s`,
+        `[MoodLoop] tick complete: evaluated=${summary.evaluated} moodChanged=${summary.moodChanged} died=${summary.died} failed=${summary.failed} duration=${(summary.durationMs / 1000).toFixed(1)}s`,
       );
     } catch (err) {
       console.error('[MoodLoop] tick failed:', err);
@@ -66,6 +85,7 @@ export class MoodLoop {
 
     let evaluated = 0;
     let moodChanged = 0;
+    let died = 0;
     let failed = 0;
 
     const queue = [...bagimons];
@@ -80,6 +100,7 @@ export class MoodLoop {
             const outcome = await this.evaluateOne(next);
             evaluated += 1;
             if (outcome === 'changed') moodChanged += 1;
+            if (outcome === 'died') died += 1;
             if (outcome === 'failed') failed += 1;
           }
         })(),
@@ -87,10 +108,12 @@ export class MoodLoop {
     }
     await Promise.all(workers);
 
-    return { evaluated, moodChanged, failed, durationMs: this.now() - startedAt };
+    return { evaluated, moodChanged, died, failed, durationMs: this.now() - startedAt };
   }
 
-  private async evaluateOne(b: Bagimon): Promise<'changed' | 'unchanged' | 'failed'> {
+  private async evaluateOne(
+    b: Bagimon,
+  ): Promise<'changed' | 'unchanged' | 'died' | 'failed'> {
     let stats: CoinStats;
     try {
       stats = await this.coinStats.getStats(b.coin_mint);
@@ -108,6 +131,48 @@ export class MoodLoop {
       uniqueBuyers24h: stats.uniqueBuyers24h,
       daysSinceActivity,
     });
+
+    if (result.mood === 'dying' && this.moodTransitions) {
+      try {
+        const recent = await this.moodTransitions.getRecent(b.id, 50);
+        const streak = continuousDyingDays(
+          recent.map((t) => ({ mood: t.to_mood, createdAt: new Date(t.created_at) })),
+          new Date(b.born_at),
+          new Date(this.now()),
+        );
+        if (streak >= this.deathDaysThreshold) {
+          try {
+            await this.repo.markDead(b.id, {
+              mood: 'dying',
+              priceUsd: stats.priceUsd,
+              volume24hUsd: stats.volume24hUsd,
+            });
+            logDeath(b, streak, stats);
+            if (this.onDeath) {
+              try {
+                await this.onDeath(b);
+              } catch (err) {
+                console.warn(
+                  `[MoodLoop] onDeath hook failed for ${b.coin_mint}: ${err instanceof Error ? err.message : String(err)}`,
+                );
+              }
+            }
+            return 'died';
+          } catch (err) {
+            console.warn(
+              `[MoodLoop] markDead failed for ${b.coin_mint}: ${err instanceof Error ? err.message : String(err)}`,
+            );
+            return 'failed';
+          }
+        }
+      } catch (err) {
+        console.warn(
+          `[MoodLoop] streak check failed for ${b.coin_mint}: ${err instanceof Error ? err.message : String(err)}`,
+        );
+        // Fall through to normal mood handling so a transient read doesn't
+        // block the rest of the tick.
+      }
+    }
 
     let changed = false;
     if (result.mood !== b.current_mood) {
@@ -158,5 +223,14 @@ function logMoodChange(b: Bagimon, to: Mood, reason: string, stats: CoinStats): 
   const volPart = stats.volume24hUsd != null ? ` vol24h=$${stats.volume24hUsd.toFixed(0)}` : '';
   console.info(
     `[MoodLoop] ${label}: ${b.current_mood} → ${to} (${reason})${extra}${volPart}`,
+  );
+}
+
+function logDeath(b: Bagimon, days: number, stats: CoinStats): void {
+  const label = b.coin_symbol ? `$${b.coin_symbol}` : b.coin_mint.slice(0, 8);
+  const vol =
+    stats.volume24hUsd != null ? `$${stats.volume24hUsd.toFixed(0)}` : 'unknown';
+  console.info(
+    `[MoodLoop] 💀 ${label} died after ${days.toFixed(1)}d of dying — final mood: dying, final volume: ${vol}`,
   );
 }

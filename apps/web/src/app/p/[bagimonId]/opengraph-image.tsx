@@ -13,20 +13,27 @@ const MOOD_BG: Record<string, { bg: string; ink: string; accent: string; soft: s
   hungry: { bg: '#e8d9b6', ink: '#2f200f', accent: '#c0673a', soft: '#6a4f2a' },
   sick: { bg: '#d8d4dc', ink: '#2b1f2e', accent: '#8a5c84', soft: '#564860' },
   dying: { bg: '#cfcabe', ink: '#3a352c', accent: '#9a8a70', soft: '#6c655a' },
+  memorial: { bg: '#c5c2bb', ink: '#2f2c26', accent: '#7a766d', soft: '#5e5a52' },
 };
 
 export default async function Image({ params }: { params: { bagimonId: string } }) {
   const data = await fetchBagimonForPetdex(params.bagimonId);
-  const palette = MOOD_BG[data?.bagimon.currentMood ?? 'happy'] ?? MOOD_BG.happy!;
+  const isDead = data ? !data.bagimon.isAlive : false;
+  const paletteKey = isDead ? 'memorial' : (data?.bagimon.currentMood ?? 'happy');
+  const palette = MOOD_BG[paletteKey] ?? MOOD_BG.happy!;
+  const renderMood = isDead ? 'dying' : (data?.bagimon.currentMood ?? 'happy');
   const sprite = data
-    ? await renderBagimonPng(data.bagimon.coinMint, data.bagimon.currentMood, 480)
+    ? await renderBagimonPng(data.bagimon.coinMint, renderMood, 480)
     : null;
   const spriteDataUrl = sprite ? `data:image/png;base64,${sprite.toString('base64')}` : null;
 
   const symbol = data?.bagimon.coinSymbol ? `$${data.bagimon.coinSymbol}` : 'BAGIMON';
-  const speciesLine = data
-    ? `${data.bagimon.speciesDisplayName.toUpperCase()} · ${data.bagimon.currentMood.toUpperCase()}`
-    : 'NOT FOUND';
+  const titleText = isDead ? `💀 In memoriam: ${symbol}` : symbol;
+  const speciesLine = !data
+    ? 'NOT FOUND'
+    : isDead
+      ? `LIVED ${data.bagimon.lifespanDays} DAY${data.bagimon.lifespanDays === 1 ? '' : 'S'}`
+      : `${data.bagimon.speciesDisplayName.toUpperCase()} · ${data.bagimon.currentMood.toUpperCase()}`;
 
   return new ImageResponse(
     (
@@ -76,7 +83,7 @@ export default async function Image({ params }: { params: { bagimonId: string } 
               wordBreak: 'break-word',
             }}
           >
-            {symbol}
+            {titleText}
           </div>
           <div style={{ fontSize: 32, color: palette.ink, marginTop: 24, letterSpacing: 1 }}>
             {speciesLine}

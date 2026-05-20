@@ -23,6 +23,10 @@ function bagimon(mint: string): Bagimon {
     last_price_usd: null,
     last_volume24h_usd: null,
     last_price_change_24h_pct: null,
+    death_announced: false,
+    final_mood: null,
+    final_price_usd: null,
+    final_volume24h_usd: null,
   };
 }
 

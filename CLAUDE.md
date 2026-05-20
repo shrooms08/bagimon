@@ -306,6 +306,27 @@ Practical implications:
   public URL with an embed Discord/Twitter unfurls. Homepage is a
   minimal pixel splash with an install CTA. CSS Modules per component
   — no Tailwind.
+- ✅ **Phase 6 — Death + memorials (parents deferred to 6.5)** — migration
+  `0006_death_columns.sql` adds `death_announced`, `final_mood`,
+  `final_price_usd`, `final_volume24h_usd` on `bagimons`. The mood loop
+  reads transition history via `MoodTransitionsRepository`, computes a
+  continuous-dying streak with the pure `continuousDyingDays` helper in
+  `@bagimon/shared`, and calls `repo.markDead` when streak >=
+  `DEATH_DAYS_THRESHOLD` (env-tunable, default 14, fractional allowed
+  for demos). `DeathAnnouncer` posts a sober grey embed to the bagimon's
+  server (system channel or first writable text channel) with the dying
+  sprite, lifespan, and Petdex link, then sets `death_announced=true` for
+  idempotency. Announcer runs at boot, on a 5-minute interval, and is
+  poked by an `onDeath` hook from the loop. `/bagimon pet|refresh|stats|lore`
+  short-circuit to memorial replies for dead Bagimons (zero LLM calls).
+  Web Petdex switches to a `memorial` palette (greyscale + faint sepia),
+  swaps the mood badge for an `IN MEMORIAM` plaque, shows `FINAL STATS`
+  instead of `LIVE STATS`, renames the interactions section to `MEMORIES`,
+  appends lifespan to the coin footer, and renders the OG image with the
+  memorial palette and a "Lived N days" subtitle. Dev-only
+  `/bagimon expedite mint:<mint>` (gated by `ENABLE_EXPEDITE=true`)
+  backdates the dying streak so the next tick kills the target — for
+  demos / screenshots.
 
 ## 13. Discord bot operations
 

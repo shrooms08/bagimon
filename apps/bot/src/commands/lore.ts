@@ -33,8 +33,11 @@ export async function handleLore(
   const config = await getTraitsConfig();
   const traits = traitsForMint(bagimon.coin_mint, config);
   const species = findSpecies(config, traits.species);
+  const memorial = bagimon.is_alive
+    ? ''
+    : '\n\n_This Bagimon is no longer with us. They are remembered._';
   await interaction.reply({
-    content: `Your Bagimon is a **${species.displayName}**. ${species.lore}`,
+    content: `Your Bagimon is a **${species.displayName}**. ${species.lore}${memorial}`,
     ephemeral: true,
   });
 }

@@ -20,6 +20,13 @@ export function CoinFooter({ bagimon }: { bagimon: PetdexBagimon }) {
             <span className={styles.mint}>{shortMint(bagimon.coinMint)}</span>
             <CopyMintButton mint={bagimon.coinMint} />
           </div>
+          {!bagimon.isAlive ? (
+            <div className={styles.mintRow}>
+              <span className={styles.mint}>
+                Bagimon lifespan: {bagimon.lifespanDays} day{bagimon.lifespanDays === 1 ? '' : 's'}
+              </span>
+            </div>
+          ) : null}
         </div>
         <div className={styles.actions}>
           <a className={styles.extLink} href={bagsFmUrl} target="_blank" rel="noopener noreferrer">

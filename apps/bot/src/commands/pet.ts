@@ -8,8 +8,8 @@ import type {
 import type { PersonalityContext, PersonalityService } from '@bagimon/ai';
 import type { Mood, SpeciesId } from '@bagimon/shared';
 import { resolveBagimon } from '../lib/resolve-bagimon.js';
-import { ambiguousMintReply, MOOD_EMOJI } from '../lib/discord-helpers.js';
-import { mintToSeed } from '@bagimon/shared';
+import { ambiguousMintReply, MOOD_EMOJI, memorialReply } from '../lib/discord-helpers.js';
+import { findSpecies, mintToSeed } from '@bagimon/shared';
 import { getTraitsConfig, renderBagimonAttachment, traitsForMint } from '../lib/bagimon-image.js';
 
 const PET_LINES: Record<Mood, readonly string[]> = {
@@ -99,11 +99,17 @@ export async function handlePet(
   }
   if (result.kind === 'not-in-server') return;
 
-  await interaction.deferReply();
-
   const { bagimon } = result;
   const config = await getTraitsConfig();
   const traits = traitsForMint(bagimon.coin_mint, config);
+
+  if (!bagimon.is_alive) {
+    const species = findSpecies(config, traits.species);
+    await interaction.reply({ ...memorialReply(bagimon, species.displayName), ephemeral: true });
+    return;
+  }
+
+  await interaction.deferReply();
 
   const [recentInteractions, recentTransitions] = await Promise.all([
     deps.interactions.getRecent(bagimon.id, 3),

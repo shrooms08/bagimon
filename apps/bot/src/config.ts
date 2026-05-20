@@ -70,6 +70,25 @@ const ConfigSchema = z.object({
       }
       return n;
     }),
+  DEATH_DAYS_THRESHOLD: z
+    .string()
+    .optional()
+    .transform((v, ctx) => {
+      if (!v || v.length === 0) return 14;
+      const n = Number(v);
+      if (!Number.isFinite(n) || n < 0.01) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'DEATH_DAYS_THRESHOLD must be >= 0.01',
+        });
+        return z.NEVER;
+      }
+      return n;
+    }),
+  ENABLE_EXPEDITE: z
+    .string()
+    .optional()
+    .transform((v) => v === 'true'),
   AI_RATE_LIMIT_BAGIMON_PER_HOUR: z
     .string()
     .optional()

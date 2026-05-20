@@ -31,6 +31,7 @@ describe('handleRefresh', () => {
     const { loop, runOnce } = makeLoop({
       evaluated: 3,
       moodChanged: 1,
+      died: 0,
       failed: 0,
       durationMs: 1200,
     });
@@ -44,6 +45,7 @@ describe('handleRefresh', () => {
     const { loop, runOnce } = makeLoop({
       evaluated: 1,
       moodChanged: 0,
+      died: 0,
       failed: 0,
       durationMs: 100,
     });
@@ -59,6 +61,7 @@ describe('handleRefresh', () => {
     const { loop, runOnce } = makeLoop({
       evaluated: 0,
       moodChanged: 0,
+      died: 0,
       failed: 0,
       durationMs: 1,
     });

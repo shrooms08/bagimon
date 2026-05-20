@@ -143,6 +143,44 @@ export class BagimonRepository {
     if (error) throw new Error(`updateStats failed: ${error.message}`);
   }
 
+  async findUnannouncedDeaths(): Promise<Bagimon[]> {
+    const { data, error } = await this.client
+      .from('bagimons')
+      .select()
+      .eq('is_alive', false)
+      .eq('death_announced', false);
+    if (error) throw new Error(`findUnannouncedDeaths failed: ${error.message}`);
+    return data ?? [];
+  }
+
+  async markDead(
+    id: string,
+    finals: { mood: Mood; priceUsd: number | null; volume24hUsd: number | null },
+  ): Promise<void> {
+    const now = new Date().toISOString();
+    const { error } = await this.client
+      .from('bagimons')
+      .update({
+        is_alive: false,
+        died_at: now,
+        final_mood: finals.mood,
+        final_price_usd: finals.priceUsd,
+        final_volume24h_usd: finals.volume24hUsd,
+        updated_at: now,
+      })
+      .eq('id', id)
+      .eq('is_alive', true);
+    if (error) throw new Error(`markDead failed: ${error.message}`);
+  }
+
+  async markDeathAnnounced(id: string): Promise<void> {
+    const { error } = await this.client
+      .from('bagimons')
+      .update({ death_announced: true, updated_at: new Date().toISOString() })
+      .eq('id', id);
+    if (error) throw new Error(`markDeathAnnounced failed: ${error.message}`);
+  }
+
   async touchActivity(id: string): Promise<void> {
     const { error } = await this.client
       .from('bagimons')

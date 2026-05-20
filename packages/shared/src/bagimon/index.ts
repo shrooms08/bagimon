@@ -18,3 +18,4 @@ export {
   type MoodInputs,
   type MoodResult,
 } from './mood-rules.js';
+export { continuousDyingDays, type MoodTransitionPoint } from './death-check.js';

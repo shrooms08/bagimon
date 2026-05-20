@@ -16,6 +16,7 @@ import { handlePet } from './pet.js';
 import { handleLore } from './lore.js';
 import { handleRefresh } from './refresh.js';
 import { handleLink } from './link.js';
+import { handleExpedite } from './expedite.js';
 import type { MoodLoop } from '../mood-loop/index.js';
 
 export interface CommandContext {
@@ -70,6 +71,15 @@ export const bagimonCommand = new SlashCommandBuilder()
       .addStringOption((o) => o.setName('mint').setDescription('Coin mint (optional if only one)')),
   );
 
+if (process.env.ENABLE_EXPEDITE === 'true') {
+  bagimonCommand.addSubcommand((s) =>
+    s
+      .setName('expedite')
+      .setDescription('[dev] Backdate the dying streak so the next tick kills this Bagimon.')
+      .addStringOption((o) => o.setName('mint').setDescription('Coin mint').setRequired(true)),
+  );
+}
+
 export const commandDefinitions: RESTPostAPIChatInputApplicationCommandsJSONBody[] = [
   bagimonCommand.toJSON(),
 ];
@@ -97,9 +107,11 @@ export async function dispatchCommand(
     case 'lore':
       return handleLore(interaction, repo);
     case 'refresh':
-      return handleRefresh(interaction, ctx.moodLoop);
+      return handleRefresh(interaction, ctx.moodLoop, repo);
     case 'link':
       return handleLink(interaction, repo);
+    case 'expedite':
+      return handleExpedite(interaction, repo, ctx.moodTransitions);
     default:
       await interaction.reply({ content: `Unknown subcommand: ${sub}`, ephemeral: true });
   }

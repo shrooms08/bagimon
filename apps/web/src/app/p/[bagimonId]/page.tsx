@@ -48,13 +48,18 @@ export default async function PetdexPage({ params }: PageProps) {
   const { bagimon, moodHistory, interactions } = data;
   const imageSrc = `/api/bagimon/${bagimon.id}/image`;
 
+  const dataMood = bagimon.isAlive ? bagimon.currentMood : 'memorial';
   return (
-    <div className={styles.shell} data-mood={bagimon.currentMood}>
+    <div className={styles.shell} data-mood={dataMood}>
       <main className="page">
         <Hero bagimon={bagimon} imageSrc={imageSrc} />
         <LiveStats bagimon={bagimon} />
-        <MoodHistory segments={moodHistory} bornAt={bagimon.bornAt} />
-        <RecentInteractions interactions={interactions} coinSymbol={bagimon.coinSymbol} />
+        <MoodHistory segments={moodHistory} bornAt={bagimon.bornAt} isAlive={bagimon.isAlive} />
+        <RecentInteractions
+          interactions={interactions}
+          coinSymbol={bagimon.coinSymbol}
+          memorialMode={!bagimon.isAlive}
+        />
         <CoinFooter bagimon={bagimon} />
         <PoweredBy />
       </main>

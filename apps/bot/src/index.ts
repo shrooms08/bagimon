@@ -16,6 +16,7 @@ import { PersonalityService, RateLimiter } from '@bagimon/ai';
 import { loadConfig } from './config.js';
 import { dispatchCommand } from './commands/index.js';
 import { MoodLoop } from './mood-loop/index.js';
+import { DeathAnnouncer } from './death-announcer/index.js';
 import { genericFallback } from './commands/pet.js';
 
 async function main(): Promise<void> {
@@ -56,19 +57,32 @@ async function main(): Promise<void> {
     new HeliusFetcher(config.HELIUS_API_KEY),
   ]);
 
+  const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+  const deathAnnouncer = new DeathAnnouncer(client, repo);
+
   const moodLoop = new MoodLoop(repo, coinStats, {
     intervalMs: config.MOOD_LOOP_INTERVAL_MINUTES * 60 * 1000,
     concurrency: config.MOOD_LOOP_CONCURRENCY,
+    deathDaysThreshold: config.DEATH_DAYS_THRESHOLD,
+    moodTransitions: moodTransitionsRepo,
+    onDeath: async () => {
+      // Best-effort kick of the announcer right after a death — fall-back
+      // interval below catches anything we miss here.
+      await deathAnnouncer.runOnce();
+    },
   });
 
-  const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+  const ANNOUNCER_INTERVAL_MS = 5 * 60 * 1000;
+  let announcerTimer: NodeJS.Timeout | null = null;
 
   client.once(Events.ClientReady, (c) => {
     console.info(`bagimon bot online as ${c.user.tag}`);
     moodLoop.start();
     console.info(
-      `[MoodLoop] started: interval=${config.MOOD_LOOP_INTERVAL_MINUTES}m concurrency=${config.MOOD_LOOP_CONCURRENCY}`,
+      `[MoodLoop] started: interval=${config.MOOD_LOOP_INTERVAL_MINUTES}m concurrency=${config.MOOD_LOOP_CONCURRENCY} deathDays=${config.DEATH_DAYS_THRESHOLD}`,
     );
+    void deathAnnouncer.runOnce();
+    announcerTimer = setInterval(() => void deathAnnouncer.runOnce(), ANNOUNCER_INTERVAL_MS);
   });
 
   client.on(Events.InteractionCreate, async (interaction) => {
@@ -96,6 +110,7 @@ async function main(): Promise<void> {
   const shutdown = async (signal: string) => {
     console.info(`received ${signal}, shutting down`);
     moodLoop.stop();
+    if (announcerTimer) clearInterval(announcerTimer);
     client.destroy();
     process.exit(0);
   };

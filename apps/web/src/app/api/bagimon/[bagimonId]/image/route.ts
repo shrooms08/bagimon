@@ -11,13 +11,14 @@ export async function GET(
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from('bagimons')
-    .select('coin_mint, current_mood')
+    .select('coin_mint, current_mood, is_alive')
     .eq('id', params.bagimonId)
     .maybeSingle();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!data) return NextResponse.json({ error: 'not found' }, { status: 404 });
 
-  const png = await renderBagimonPng(data.coin_mint, data.current_mood, 512);
+  const mood = data.is_alive ? data.current_mood : 'dying';
+  const png = await renderBagimonPng(data.coin_mint, mood, 512);
   return new Response(new Uint8Array(png), {
     status: 200,
     headers: {
