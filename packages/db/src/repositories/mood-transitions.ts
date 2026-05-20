@@ -1,18 +1,35 @@
+import type { Mood } from '@bagimon/shared';
 import type { BagimonSupabaseClient } from '../client.js';
 import type { MoodTransition } from '../types.js';
 
 export class MoodTransitionsRepository {
   constructor(private readonly client: BagimonSupabaseClient) {}
 
-  // Dev-only: rewrite created_at on every 'dying' transition row for this
-  // bagimon. Used by /bagimon expedite to force a death on the next tick.
-  async backdateDyingTransitions(bagimonId: string, when: Date): Promise<void> {
-    const { error } = await this.client
+  // Dev-only: clear any recent transitions and insert a single backdated
+  // dying row, so continuousDyingDays sees an unambiguous streak. Used by
+  // /bagimon expedite to force a death on the next tick regardless of what
+  // recent mood loop ticks may have written.
+  async expediteDying(input: {
+    bagimonId: string;
+    fromMood: Mood | null;
+    backdatedCreatedAt: Date;
+  }): Promise<void> {
+    const cutoff = new Date(input.backdatedCreatedAt.getTime() - 60_000);
+    const { error: delError } = await this.client
       .from('mood_transitions')
-      .update({ created_at: when.toISOString() })
-      .eq('bagimon_id', bagimonId)
-      .eq('to_mood', 'dying');
-    if (error) throw new Error(`backdateDyingTransitions failed: ${error.message}`);
+      .delete()
+      .eq('bagimon_id', input.bagimonId)
+      .gte('created_at', cutoff.toISOString());
+    if (delError) throw new Error(`expediteDying delete failed: ${delError.message}`);
+
+    const { error: insError } = await this.client.from('mood_transitions').insert({
+      bagimon_id: input.bagimonId,
+      from_mood: input.fromMood,
+      to_mood: 'dying',
+      trigger_reason: 'expedite_dev',
+      created_at: input.backdatedCreatedAt.toISOString(),
+    });
+    if (insError) throw new Error(`expediteDying insert failed: ${insError.message}`);
   }
 
   async getRecent(bagimonId: string, limit = 3): Promise<MoodTransition[]> {

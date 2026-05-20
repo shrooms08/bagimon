@@ -112,8 +112,15 @@ export class MoodLoop {
   }
 
   private async evaluateOne(
-    b: Bagimon,
+    bSnapshot: Bagimon,
   ): Promise<'changed' | 'unchanged' | 'died' | 'failed'> {
+    // Refresh the row — /bagimon expedite (or any other writer) may have
+    // mutated current_mood between findAllAlive() and now. The death check
+    // below reads current_mood, so it must see fresh state.
+    const refreshed = await this.repo.findById(bSnapshot.id).catch(() => null);
+    const b = refreshed ?? bSnapshot;
+    if (!b.is_alive) return 'unchanged';
+
     let stats: CoinStats;
     try {
       stats = await this.coinStats.getStats(b.coin_mint);
@@ -124,15 +131,11 @@ export class MoodLoop {
       return 'failed';
     }
 
-    const daysSinceActivity = daysSince(b.last_activity_at, this.now());
-    const result = computeMood({
-      priceChange24hPct: stats.priceChange24hPct,
-      volume24hUsd: stats.volume24hUsd,
-      uniqueBuyers24h: stats.uniqueBuyers24h,
-      daysSinceActivity,
-    });
-
-    if (result.mood === 'dying' && this.moodTransitions) {
+    // Death check runs against the Bagimon's EXISTING current_mood, not the
+    // freshly-computed mood. If a Bagimon has already been dying long enough,
+    // it dies — regardless of what the next tick would compute. Recovery had
+    // its chance in prior ticks.
+    if (b.current_mood === 'dying' && this.moodTransitions) {
       try {
         const recent = await this.moodTransitions.getRecent(b.id, 50);
         const streak = continuousDyingDays(
@@ -173,6 +176,14 @@ export class MoodLoop {
         // block the rest of the tick.
       }
     }
+
+    const daysSinceActivity = daysSince(b.last_activity_at, this.now());
+    const result = computeMood({
+      priceChange24hPct: stats.priceChange24hPct,
+      volume24hUsd: stats.volume24hUsd,
+      uniqueBuyers24h: stats.uniqueBuyers24h,
+      daysSinceActivity,
+    });
 
     let changed = false;
     if (result.mood !== b.current_mood) {

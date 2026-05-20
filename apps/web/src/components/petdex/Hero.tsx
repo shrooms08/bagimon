@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { Panel } from '../ui/Panel';
 import { MoodBadge } from '../ui/MoodBadge';
 import { MemorialPlaque } from '../ui/MemorialPlaque';
@@ -31,7 +32,12 @@ export function Hero({ bagimon, imageSrc }: HeroProps) {
       </div>
       <div className={styles.meta}>
         <div className="eyebrow">PETDEX&nbsp;{bagimon.petdexNumber}</div>
-        <h1 className={styles.coinName}>{display}</h1>
+        <h1
+          className={styles.coinName}
+          style={{ '--symbol-length': display.length } as CSSProperties}
+        >
+          {display}
+        </h1>
         <div className={styles.speciesBlock}>
           <div className={styles.sr}>
             <span className={styles.key}>SPECIES</span>

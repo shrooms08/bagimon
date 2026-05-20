@@ -59,6 +59,7 @@ export type MoodTransitionInsert = {
   from_mood: Mood | null;
   to_mood: Mood;
   trigger_reason: string | null;
+  created_at?: string;
 };
 
 export type Interaction = {

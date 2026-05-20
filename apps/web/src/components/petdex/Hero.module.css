@@ -98,23 +98,21 @@
 
 .meta {
   text-align: center;
+  min-width: 0;
+  container-type: inline-size;
 }
 @media (min-width: 720px) {
   .meta {
     text-align: left;
-  }
-}
-.meta {
-  min-width: 0;
-}
-@media (min-width: 720px) {
-  .meta {
     min-width: 280px;
   }
 }
 .coinName {
   font-family: var(--font-press-start), 'Press Start 2P', monospace;
-  font-size: clamp(36px, 7vw, 60px);
+  /* Size against the .meta column (container-type: inline-size). Each
+     Press Start 2P glyph is ~1em wide; 95cqi/length keeps the symbol
+     inside the column at any viewport, clamped to 60px on short symbols. */
+  font-size: clamp(28px, calc(95cqi / var(--symbol-length, 6)), 60px);
   line-height: 1;
   color: var(--ink);
   text-shadow:

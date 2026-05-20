@@ -4,7 +4,15 @@ import { resolveBagimon } from '../lib/resolve-bagimon.js';
 
 // Dev-only: force a Bagimon into a state where the next mood-loop tick will
 // kill it. Registered only when ENABLE_EXPEDITE=true.
-const BACKDATE_DAYS = 14.1;
+const BUFFER_SECONDS = 60;
+const DEFAULT_DEATH_DAYS = 14;
+
+function deathDaysThreshold(): number {
+  const raw = process.env.DEATH_DAYS_THRESHOLD;
+  if (!raw) return DEFAULT_DEATH_DAYS;
+  const n = Number(raw);
+  return Number.isFinite(n) && n >= 0.01 ? n : DEFAULT_DEATH_DAYS;
+}
 
 export async function handleExpedite(
   interaction: ChatInputCommandInteraction,
@@ -31,16 +39,22 @@ export async function handleExpedite(
     return;
   }
 
-  if (bagimon.current_mood !== 'dying') {
+  const previousMood = bagimon.current_mood;
+  const backdatedMs =
+    Date.now() - (deathDaysThreshold() * 86_400_000 + BUFFER_SECONDS * 1000);
+
+  await transitions.expediteDying({
+    bagimonId: bagimon.id,
+    fromMood: previousMood,
+    backdatedCreatedAt: new Date(backdatedMs),
+  });
+
+  if (previousMood !== 'dying') {
     await repo.updateMood(bagimon.id, 'dying', 'expedite_dev');
   }
-  await transitions.backdateDyingTransitions(
-    bagimon.id,
-    new Date(Date.now() - BACKDATE_DAYS * 86_400_000),
-  );
 
   await interaction.reply({
-    content: `:fast_forward: Expedited. Next mood-loop tick will kill ${bagimon.coin_symbol ? `$${bagimon.coin_symbol}` : 'this Bagimon'}.`,
+    content: `:fast_forward: Expedited. Next mood-loop tick will kill ${bagimon.coin_symbol ? `$${bagimon.coin_symbol}` : 'this Bagimon'} by death check, regardless of live coin data.`,
     ephemeral: true,
   });
 }
