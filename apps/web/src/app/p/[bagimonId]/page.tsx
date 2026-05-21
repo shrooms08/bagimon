@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { fetchBagimonForPetdex } from '../../../lib/fetch-bagimon';
 import { Hero } from '../../../components/petdex/Hero';
 import { LiveStats } from '../../../components/petdex/LiveStats';
+import { BagsPanels } from '../../../components/petdex/BagsPanels';
 import { MoodHistory } from '../../../components/petdex/MoodHistory';
 import { RecentInteractions } from '../../../components/petdex/RecentInteractions';
 import { Family } from '../../../components/petdex/Family';
@@ -55,6 +56,7 @@ export default async function PetdexPage({ params }: PageProps) {
       <main className="page">
         <Hero bagimon={bagimon} imageSrc={imageSrc} />
         <LiveStats bagimon={bagimon} />
+        <BagsPanels bagimon={bagimon} />
         <MoodHistory segments={moodHistory} bornAt={bagimon.bornAt} isAlive={bagimon.isAlive} />
         <RecentInteractions
           interactions={interactions}

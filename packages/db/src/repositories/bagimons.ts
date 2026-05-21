@@ -181,6 +181,40 @@ export class BagimonRepository {
     if (error) throw new Error(`markDeathAnnounced failed: ${error.message}`);
   }
 
+  async updateBagsData(
+    id: string,
+    data: {
+      lifetimeFeesLamports: number | null;
+      lifetimeFeesSol: number | null;
+      creator: {
+        provider: string | null;
+        username: string | null;
+        providerUsername: string | null;
+        wallet: string | null;
+        pfp: string | null;
+        royaltyBps: number | null;
+      } | null;
+      error: string | null;
+    },
+  ): Promise<void> {
+    const { error } = await this.client
+      .from('bagimons')
+      .update({
+        lifetime_fees_lamports: data.lifetimeFeesLamports,
+        lifetime_fees_sol: data.lifetimeFeesSol,
+        creator_provider: data.creator?.provider ?? null,
+        creator_username: data.creator?.username ?? null,
+        creator_provider_username: data.creator?.providerUsername ?? null,
+        creator_wallet: data.creator?.wallet ?? null,
+        creator_pfp: data.creator?.pfp ?? null,
+        creator_royalty_bps: data.creator?.royaltyBps ?? null,
+        bags_synced_at: new Date().toISOString(),
+        bags_sync_error: data.error,
+      })
+      .eq('id', id);
+    if (error) throw new Error(`updateBagsData failed: ${error.message}`);
+  }
+
   async touchActivity(id: string): Promise<void> {
     const { error } = await this.client
       .from('bagimons')

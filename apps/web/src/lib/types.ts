@@ -23,6 +23,17 @@ export interface PetdexBagimon {
   priceChange24hPct: number | null;
   volume24hUsd: number | null;
   lastStatsAt: Date | null;
+  lifetimeFeesSol: number | null;
+  creator: PetdexCreator | null;
+}
+
+export interface PetdexCreator {
+  provider: string | null;
+  username: string | null;
+  providerUsername: string | null;
+  wallet: string;
+  pfp: string | null;
+  royaltyBps: number | null;
 }
 
 export interface PetdexMoodSegment {

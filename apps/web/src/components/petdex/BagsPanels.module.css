@@ -1,0 +1,63 @@
+.feesBox {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 6px 4px;
+}
+.feesValue {
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 32px;
+  color: var(--ink);
+  letter-spacing: 1px;
+  word-break: break-all;
+}
+.feesCaption {
+  font-family: var(--font-nunito), 'Nunito', sans-serif;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.creatorBox {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px;
+}
+.creatorPfp {
+  width: 64px;
+  height: 64px;
+  image-rendering: pixelated;
+  box-shadow:
+    0 -3px 0 0 var(--shadow),
+    0 3px 0 0 var(--shadow),
+    -3px 0 0 0 var(--shadow),
+    3px 0 0 0 var(--shadow);
+  object-fit: cover;
+}
+.creatorPfpFallback {
+  width: 64px;
+  height: 64px;
+  background: var(--bg-2);
+  box-shadow:
+    0 -3px 0 0 var(--shadow),
+    0 3px 0 0 var(--shadow),
+    -3px 0 0 0 var(--shadow),
+    3px 0 0 0 var(--shadow);
+}
+.creatorMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.creatorName {
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: var(--ink);
+  word-break: break-all;
+}
+.creatorSub {
+  font-family: var(--font-nunito), 'Nunito', sans-serif;
+  font-size: 12px;
+  color: var(--ink-soft);
+}

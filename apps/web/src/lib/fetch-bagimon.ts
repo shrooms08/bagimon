@@ -130,6 +130,17 @@ export async function fetchBagimonForPetdexWith(
       priceChange24hPct: bagimon.last_price_change_24h_pct,
       volume24hUsd: bagimon.last_volume24h_usd,
       lastStatsAt: bagimon.last_stats_at ? new Date(bagimon.last_stats_at) : null,
+      lifetimeFeesSol: bagimon.lifetime_fees_sol ?? null,
+      creator: bagimon.creator_wallet
+        ? {
+            provider: bagimon.creator_provider,
+            username: bagimon.creator_username,
+            providerUsername: bagimon.creator_provider_username,
+            wallet: bagimon.creator_wallet,
+            pfp: bagimon.creator_pfp,
+            royaltyBps: bagimon.creator_royalty_bps,
+          }
+        : null,
     },
     moodHistory,
     interactions,

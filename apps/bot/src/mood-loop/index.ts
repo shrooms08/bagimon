@@ -4,6 +4,7 @@ import type {
   MoodTransitionsRepository,
 } from '@bagimon/db';
 import type { CoinStatsService, CoinStats } from '@bagimon/coin-data';
+import { fetchLifetimeFees, fetchCreators, getPrimaryCreator } from '@bagimon/bags-api';
 import { computeMood, continuousDyingDays, type Mood } from '@bagimon/shared';
 
 export interface RunSummary {
@@ -215,7 +216,39 @@ export class MoodLoop {
       // Stats persistence failure shouldn't mask mood change success.
     }
 
+    try {
+      await this.syncBagsData(b);
+    } catch (err) {
+      console.warn(
+        `[MoodLoop] bags sync failed for ${b.coin_mint}: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+
     return changed ? 'changed' : 'unchanged';
+  }
+
+  private async syncBagsData(b: Bagimon): Promise<void> {
+    if (!process.env.BAGS_API_KEY) return;
+    const [fees, creators] = await Promise.all([
+      fetchLifetimeFees(b.coin_mint),
+      fetchCreators(b.coin_mint),
+    ]);
+    const primary = creators ? getPrimaryCreator(creators) : null;
+    await this.repo.updateBagsData(b.id, {
+      lifetimeFeesLamports: fees?.lamports ?? null,
+      lifetimeFeesSol: fees?.sol ?? null,
+      creator: primary
+        ? {
+            provider: primary.provider,
+            username: primary.username,
+            providerUsername: primary.providerUsername,
+            wallet: primary.wallet,
+            pfp: primary.pfp,
+            royaltyBps: primary.royaltyBps,
+          }
+        : null,
+      error: !fees && !creators ? 'both bags api calls failed (non-bags coin?)' : null,
+    });
   }
 }
 

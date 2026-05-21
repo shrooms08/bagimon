@@ -23,6 +23,16 @@ export type Bagimon = {
   final_mood: Mood | null;
   final_price_usd: number | null;
   final_volume24h_usd: number | null;
+  lifetime_fees_lamports: number | null;
+  lifetime_fees_sol: number | null;
+  creator_provider: string | null;
+  creator_username: string | null;
+  creator_provider_username: string | null;
+  creator_wallet: string | null;
+  creator_pfp: string | null;
+  creator_royalty_bps: number | null;
+  bags_synced_at: string | null;
+  bags_sync_error: string | null;
 };
 
 export type MoodTransition = {

@@ -34,6 +34,10 @@ export default async function Image({ params }: { params: { bagimonId: string } 
     : isDead
       ? `LIVED ${data.bagimon.lifespanDays} DAY${data.bagimon.lifespanDays === 1 ? '' : 'S'}`
       : `${data.bagimon.speciesDisplayName.toUpperCase()} · ${data.bagimon.currentMood.toUpperCase()}`;
+  const feesLine =
+    data && data.bagimon.lifetimeFeesSol != null
+      ? `${data.bagimon.lifetimeFeesSol.toFixed(2)} SOL EARNED`
+      : null;
 
   return new ImageResponse(
     (
@@ -88,6 +92,11 @@ export default async function Image({ params }: { params: { bagimonId: string } 
           <div style={{ fontSize: 32, color: palette.ink, marginTop: 24, letterSpacing: 1 }}>
             {speciesLine}
           </div>
+          {feesLine ? (
+            <div style={{ fontSize: 26, color: palette.soft, marginTop: 14, letterSpacing: 1 }}>
+              {feesLine}
+            </div>
+          ) : null}
         </div>
       </div>
     ),

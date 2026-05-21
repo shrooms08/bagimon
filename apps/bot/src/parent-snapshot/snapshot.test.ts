@@ -27,6 +27,16 @@ function makeBagimon(overrides: Partial<Bagimon> = {}): Bagimon {
     final_mood: null,
     final_price_usd: null,
     final_volume24h_usd: null,
+    lifetime_fees_lamports: null,
+    lifetime_fees_sol: null,
+    creator_provider: null,
+    creator_username: null,
+    creator_provider_username: null,
+    creator_wallet: null,
+    creator_pfp: null,
+    creator_royalty_bps: null,
+    bags_synced_at: null,
+    bags_sync_error: null,
     ...overrides,
   };
 }
