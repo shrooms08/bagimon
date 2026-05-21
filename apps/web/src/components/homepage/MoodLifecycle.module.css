@@ -1,0 +1,61 @@
+.row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (max-width: 880px) {
+  .row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 480px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 10px 12px;
+  text-align: center;
+}
+.sprite {
+  width: 100%;
+  max-width: 96px;
+  height: auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.name {
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  padding: 5px 8px;
+  background: var(--accent);
+  color: var(--paper);
+  box-shadow:
+    0 -2px 0 0 var(--shadow),
+    0 2px 0 0 var(--shadow),
+    -2px 0 0 0 var(--shadow),
+    2px 0 0 0 var(--shadow);
+}
+.mood_happy .name { background: #e87a5e; }
+.mood_thriving .name { background: #e9a92a; }
+.mood_hungry .name { background: #c0673a; }
+.mood_sick .name { background: #8a5c84; }
+.mood_dying .name { background: #8a8270; }
+
+.desc {
+  font-size: 12px;
+  color: var(--ink-soft);
+  line-height: 1.4;
+  min-height: 2.8em;
+}
+.footnote {
+  font-size: 11px;
+  color: var(--accent-dark);
+  margin-top: 4px;
+  line-height: 1.3;
+}

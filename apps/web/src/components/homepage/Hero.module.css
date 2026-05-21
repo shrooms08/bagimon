@@ -1,26 +1,17 @@
-.main {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-  padding-top: 80px;
-}
-.card {
-  max-width: 560px;
-  padding: 40px 32px;
+.hero {
+  padding: 40px 28px 36px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 .logo {
   display: inline-flex;
-  width: 96px;
-  height: 96px;
+  width: 88px;
+  height: 88px;
   color: var(--accent);
   image-rendering: pixelated;
-  image-rendering: crisp-edges;
   filter: drop-shadow(3px 3px 0 var(--shadow));
 }
 .logo svg {
@@ -36,23 +27,28 @@
     3px 0 0 var(--accent),
     3px 3px 0 var(--shadow);
   letter-spacing: 1px;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 .tagline {
   font-family: var(--font-press-start), 'Press Start 2P', monospace;
   font-size: 11px;
   color: var(--ink-soft);
-  margin: 0;
+  margin: 2px 0 0;
 }
-.description {
-  margin: 6px 0 8px;
-  font-size: 15px;
+.subTagline {
+  margin: 0;
+  font-size: 13px;
   color: var(--ink-soft);
-  line-height: 1.55;
-  max-width: 42ch;
+  opacity: 0.85;
+}
+.ctaRow {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 .cta {
-  margin-top: 8px;
   text-decoration: none;
   font-family: var(--font-press-start), 'Press Start 2P', monospace;
   font-size: 12px;
@@ -87,4 +83,14 @@
 .cta:hover {
   filter: brightness(1.07);
   transform: translateY(-1px);
+}
+.ghLink {
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  letter-spacing: 0.5px;
+}
+.ghLink:hover {
+  color: var(--ink);
 }

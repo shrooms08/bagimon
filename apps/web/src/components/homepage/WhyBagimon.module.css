@@ -1,0 +1,16 @@
+.panel {
+  padding: 24px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.para {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+.para:first-of-type {
+  color: var(--ink);
+  font-weight: 600;
+}
