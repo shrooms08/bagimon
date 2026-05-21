@@ -1,9 +1,8 @@
 import 'server-only';
 import { loadTraitsConfig, findSpecies, mintToSeed, selectTraits, SPECIES_TYPE, type Mood, type SpeciesId, type TraitsConfig } from '@bagimon/shared';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type { BagimonSupabaseClient } from '@bagimon/db';
 import { getSupabase } from './supabase';
+import { artTraitsPath } from './art-root';
 import { bornAtLabel, dayCount, petdexNumber } from './format';
 import type {
   PetdexData,
@@ -12,13 +11,9 @@ import type {
   PetdexParent,
 } from './types';
 
-const here = dirname(fileURLToPath(import.meta.url));
-// apps/web/src/lib → repo root → packages/art/metadata/traits.json
-const traitsPath = resolve(here, '../../../../packages/art/metadata/traits.json');
-
 let cachedTraits: TraitsConfig | null = null;
 async function getTraits(): Promise<TraitsConfig> {
-  if (!cachedTraits) cachedTraits = await loadTraitsConfig(traitsPath);
+  if (!cachedTraits) cachedTraits = await loadTraitsConfig(artTraitsPath());
   return cachedTraits;
 }
 

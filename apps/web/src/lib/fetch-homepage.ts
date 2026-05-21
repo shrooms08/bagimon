@@ -1,10 +1,9 @@
 import 'server-only';
 import type { Mood, SpeciesId } from '@bagimon/shared';
 import { findSpecies, loadTraitsConfig, mintToSeed, selectTraits, type TraitsConfig } from '@bagimon/shared';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type { BagimonSupabaseClient } from '@bagimon/db';
 import { getSupabase } from './supabase';
+import { artTraitsPath } from './art-root';
 
 export interface HomepageBagimon {
   id: string;
@@ -14,12 +13,9 @@ export interface HomepageBagimon {
   currentMood: Mood;
 }
 
-const here = dirname(fileURLToPath(import.meta.url));
-const traitsPath = resolve(here, '../../../../packages/art/metadata/traits.json');
-
 let cachedTraits: TraitsConfig | null = null;
 async function getTraits(): Promise<TraitsConfig> {
-  if (!cachedTraits) cachedTraits = await loadTraitsConfig(traitsPath);
+  if (!cachedTraits) cachedTraits = await loadTraitsConfig(artTraitsPath());
   return cachedTraits;
 }
 
