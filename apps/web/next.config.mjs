@@ -13,20 +13,7 @@ const nextConfig = {
   reactStrictMode: true,
   experimental: {
     serverComponentsExternalPackages: ['sharp'],
-    // Next's file tracer can't see the runtime fs.readFile() calls that load
-    // PNG layers from packages/art, so we tell it explicitly to bundle them
-    // with the routes that need them. Paths are relative to the project root.
     outputFileTracingRoot: join(here, '../../'),
-    outputFileTracingIncludes: {
-      '/api/bagimon/[bagimonId]/image': [
-        '../../packages/art/assets/**/*.png',
-        '../../packages/art/metadata/**/*.json',
-      ],
-      '/p/[bagimonId]/opengraph-image': [
-        '../../packages/art/assets/**/*.png',
-        '../../packages/art/metadata/**/*.json',
-      ],
-    },
   },
   // Workspace packages use ESM-style `.js` extensions in their .ts imports.
   // Next's webpack needs an extensionAlias to resolve those to the .ts files.

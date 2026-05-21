@@ -1,0 +1,2 @@
+# Build-time copy of packages/art (see scripts/copy-art.mjs)
+/public/_art

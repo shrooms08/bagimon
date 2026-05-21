@@ -3,6 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "prebuild": "node scripts/copy-art.mjs",
+    "predev": "node scripts/copy-art.mjs",
     "build": "next build",
     "dev": "rm -rf .next && next dev",
     "start": "next start",
