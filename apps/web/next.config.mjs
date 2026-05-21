@@ -18,8 +18,8 @@ const nextConfig = {
     // with the routes that need them. Paths are relative to the project root.
     outputFileTracingRoot: join(here, '../../'),
     outputFileTracingIncludes: {
-      '/api/bagimon/[bagimonId]/image': ['../../packages/art/assets/**/*'],
-      '/p/[bagimonId]/opengraph-image': ['../../packages/art/assets/**/*'],
+      '/api/bagimon/[bagimonId]/image': ['../../packages/art/**/*'],
+      '/p/[bagimonId]/opengraph-image': ['../../packages/art/**/*'],
     },
   },
   // Workspace packages use ESM-style `.js` extensions in their .ts imports.
