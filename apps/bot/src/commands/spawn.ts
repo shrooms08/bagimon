@@ -1,5 +1,11 @@
 import { EmbedBuilder, type ChatInputCommandInteraction } from 'discord.js';
 import type { BagimonRepository } from '@bagimon/db';
+import {
+  validateBagsPool,
+  fetchLifetimeFees,
+  fetchCreators,
+  getPrimaryCreator,
+} from '@bagimon/bags-api';
 import { isLikelyMint, shortMint } from '../lib/mint.js';
 import { renderBagimonAttachment } from '../lib/bagimon-image.js';
 
@@ -31,11 +37,50 @@ export async function handleSpawn(
     return;
   }
 
+  if (process.env.BAGS_API_KEY) {
+    const isBagsCoin = await validateBagsPool(mint);
+    if (!isBagsCoin) {
+      await interaction.editReply({
+        content: [
+          "🤔 That doesn't look like a Bags coin.",
+          '',
+          'Bagimon only works for coins launched on **Bags.fm**.',
+          'You can find Bags coins at https://bags.fm',
+          '',
+          `Mint checked: \`${mint}\``,
+        ].join('\n'),
+      });
+      return;
+    }
+  }
+
+  const [feesResult, creatorsResult] = await Promise.all([
+    fetchLifetimeFees(mint),
+    fetchCreators(mint),
+  ]);
+  const primaryCreator = creatorsResult ? getPrimaryCreator(creatorsResult) : null;
+
   const bagimon = await repo.spawn({
     discord_server_id: interaction.guildId,
     discord_server_name: interaction.guild?.name ?? null,
     coin_mint: mint,
     spawned_by_discord_user_id: interaction.user.id,
+  });
+
+  await repo.updateBagsData(bagimon.id, {
+    lifetimeFeesLamports: feesResult?.lamports ?? null,
+    lifetimeFeesSol: feesResult?.sol ?? null,
+    creator: primaryCreator
+      ? {
+          provider: primaryCreator.provider ?? null,
+          username: primaryCreator.username ?? null,
+          providerUsername: primaryCreator.providerUsername ?? null,
+          wallet: primaryCreator.wallet ?? null,
+          pfp: primaryCreator.pfp ?? null,
+          royaltyBps: primaryCreator.royaltyBps ?? null,
+        }
+      : null,
+    error: null,
   });
 
   const { attachment, species } = await renderBagimonAttachment(
