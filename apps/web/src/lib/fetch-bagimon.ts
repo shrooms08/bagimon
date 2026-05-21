@@ -5,7 +5,12 @@ import { fileURLToPath } from 'node:url';
 import type { BagimonSupabaseClient } from '@bagimon/db';
 import { getSupabase } from './supabase';
 import { bornAtLabel, dayCount, petdexNumber } from './format';
-import type { PetdexData, PetdexInteraction, PetdexMoodSegment } from './types';
+import type {
+  PetdexData,
+  PetdexInteraction,
+  PetdexMoodSegment,
+  PetdexParent,
+} from './types';
 
 const here = dirname(fileURLToPath(import.meta.url));
 // apps/web/src/lib → repo root → packages/art/metadata/traits.json
@@ -37,23 +42,54 @@ export async function fetchBagimonForPetdexWith(
   if (error) throw new Error(`fetch bagimon failed: ${error.message}`);
   if (!bagimon) return null;
 
-  const [{ data: moodRows, error: moodErr }, { data: interactionRows, error: intErr }] =
-    await Promise.all([
-      supabase
-        .from('mood_transitions')
-        .select()
-        .eq('bagimon_id', bagimonId)
-        .order('created_at', { ascending: false })
-        .limit(8),
-      supabase
-        .from('interactions')
-        .select()
-        .eq('bagimon_id', bagimonId)
-        .order('created_at', { ascending: false })
-        .limit(5),
-    ]);
+  const [
+    { data: moodRows, error: moodErr },
+    { data: interactionRows, error: intErr },
+    { data: latestParentRow, error: latestParentErr },
+  ] = await Promise.all([
+    supabase
+      .from('mood_transitions')
+      .select()
+      .eq('bagimon_id', bagimonId)
+      .order('created_at', { ascending: false })
+      .limit(8),
+    supabase
+      .from('interactions')
+      .select()
+      .eq('bagimon_id', bagimonId)
+      .order('created_at', { ascending: false })
+      .limit(5),
+    supabase
+      .from('bagimon_parents')
+      .select()
+      .eq('bagimon_id', bagimonId)
+      .order('snapshot_at', { ascending: false })
+      .limit(1),
+  ]);
   if (moodErr) throw new Error(`fetch mood history failed: ${moodErr.message}`);
   if (intErr) throw new Error(`fetch interactions failed: ${intErr.message}`);
+  if (latestParentErr) throw new Error(`fetch parents failed: ${latestParentErr.message}`);
+
+  let parents: PetdexParent[] = [];
+  const latestSnapshotAt = latestParentRow?.[0]?.snapshot_at ?? null;
+  if (latestSnapshotAt) {
+    const { data: parentRows, error: parentErr } = await supabase
+      .from('bagimon_parents')
+      .select()
+      .eq('bagimon_id', bagimonId)
+      .eq('snapshot_at', latestSnapshotAt)
+      .order('rank', { ascending: true })
+      .limit(10);
+    if (parentErr) throw new Error(`fetch parent snapshot failed: ${parentErr.message}`);
+    parents = (parentRows ?? []).map((row) => ({
+      rank: row.rank,
+      walletAddress: row.wallet_address,
+      holdingAmount: Number(row.holding_amount),
+      holdingPercentOfSupply:
+        row.holding_percent_of_supply != null ? Number(row.holding_percent_of_supply) : null,
+      snapshotAt: new Date(row.snapshot_at),
+    }));
+  }
 
   const traits = await getTraits();
   // Identity is derived from the mint, not stored.
@@ -102,6 +138,7 @@ export async function fetchBagimonForPetdexWith(
     },
     moodHistory,
     interactions,
+    parents,
   };
 }
 

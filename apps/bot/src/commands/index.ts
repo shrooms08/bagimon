@@ -5,6 +5,7 @@ import {
 } from 'discord.js';
 import type {
   BagimonRepository,
+  BagimonParentsRepository,
   InteractionsRepository,
   AiCallsRepository,
   MoodTransitionsRepository,
@@ -17,6 +18,7 @@ import { handleLore } from './lore.js';
 import { handleRefresh } from './refresh.js';
 import { handleLink } from './link.js';
 import { handleExpedite } from './expedite.js';
+import { handleFamily } from './family.js';
 import type { MoodLoop } from '../mood-loop/index.js';
 
 export interface CommandContext {
@@ -24,6 +26,7 @@ export interface CommandContext {
   interactions: InteractionsRepository;
   aiCalls: AiCallsRepository;
   moodTransitions: MoodTransitionsRepository;
+  parents: BagimonParentsRepository;
   personality: PersonalityService;
 }
 
@@ -69,6 +72,12 @@ export const bagimonCommand = new SlashCommandBuilder()
       .setName('link')
       .setDescription('Share the public Petdex page for this Bagimon.')
       .addStringOption((o) => o.setName('mint').setDescription('Coin mint (optional if only one)')),
+  )
+  .addSubcommand((s) =>
+    s
+      .setName('family')
+      .setDescription("Show this Bagimon's top 10 holders (its parents).")
+      .addStringOption((o) => o.setName('mint').setDescription('Coin mint (optional if only one)')),
   );
 
 if (process.env.ENABLE_EXPEDITE === 'true') {
@@ -110,6 +119,8 @@ export async function dispatchCommand(
       return handleRefresh(interaction, ctx.moodLoop, repo);
     case 'link':
       return handleLink(interaction, repo);
+    case 'family':
+      return handleFamily(interaction, repo, ctx.parents);
     case 'expedite':
       return handleExpedite(interaction, repo, ctx.moodTransitions);
     default:

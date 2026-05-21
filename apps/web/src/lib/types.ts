@@ -37,8 +37,17 @@ export interface PetdexInteraction {
   createdAt: Date;
 }
 
+export interface PetdexParent {
+  rank: number;
+  walletAddress: string;
+  holdingAmount: number;
+  holdingPercentOfSupply: number | null;
+  snapshotAt: Date;
+}
+
 export interface PetdexData {
   bagimon: PetdexBagimon;
   moodHistory: PetdexMoodSegment[];
   interactions: PetdexInteraction[];
+  parents: PetdexParent[];
 }

@@ -1,6 +1,7 @@
 import { Client, Events, GatewayIntentBits } from 'discord.js';
 import {
   AiCallsRepository,
+  BagimonParentsRepository,
   BagimonRepository,
   InteractionsRepository,
   MoodTransitionsRepository,
@@ -12,11 +13,13 @@ import {
   JupiterFetcher,
   HeliusFetcher,
 } from '@bagimon/coin-data';
+import { HeliusHolderFetcher, HolderDataService } from '@bagimon/holder-data';
 import { PersonalityService, RateLimiter } from '@bagimon/ai';
 import { loadConfig } from './config.js';
 import { dispatchCommand } from './commands/index.js';
 import { MoodLoop } from './mood-loop/index.js';
 import { DeathAnnouncer } from './death-announcer/index.js';
+import { ParentSnapshotWorker } from './parent-snapshot/index.js';
 import { genericFallback } from './commands/pet.js';
 
 async function main(): Promise<void> {
@@ -29,6 +32,7 @@ async function main(): Promise<void> {
   const interactionsRepo = new InteractionsRepository(supabase);
   const aiCallsRepo = new AiCallsRepository(supabase);
   const moodTransitionsRepo = new MoodTransitionsRepository(supabase);
+  const parentsRepo = new BagimonParentsRepository(supabase);
 
   if (!config.ANTHROPIC_API_KEY) {
     console.warn(
@@ -57,6 +61,15 @@ async function main(): Promise<void> {
     new HeliusFetcher(config.HELIUS_API_KEY),
   ]);
 
+  const holderService = new HolderDataService(
+    new HeliusHolderFetcher({ apiKey: config.HELIUS_API_KEY }),
+  );
+  const parentSnapshotWorker = new ParentSnapshotWorker(
+    repo,
+    parentsRepo,
+    holderService,
+  );
+
   const client = new Client({ intents: [GatewayIntentBits.Guilds] });
   const deathAnnouncer = new DeathAnnouncer(client, repo);
 
@@ -74,6 +87,8 @@ async function main(): Promise<void> {
 
   const ANNOUNCER_INTERVAL_MS = 5 * 60 * 1000;
   let announcerTimer: NodeJS.Timeout | null = null;
+  const parentSnapshotIntervalMs = config.PARENT_SNAPSHOT_INTERVAL_HOURS * 60 * 60 * 1000;
+  let parentSnapshotTimer: NodeJS.Timeout | null = null;
 
   client.once(Events.ClientReady, (c) => {
     console.info(`bagimon bot online as ${c.user.tag}`);
@@ -83,7 +98,28 @@ async function main(): Promise<void> {
     );
     void deathAnnouncer.runOnce();
     announcerTimer = setInterval(() => void deathAnnouncer.runOnce(), ANNOUNCER_INTERVAL_MS);
+
+    // First parent snapshot 10s after boot so Discord client is fully ready
+    // and we don't compete with the initial mood-loop tick.
+    setTimeout(() => {
+      void runParentSnapshot();
+      parentSnapshotTimer = setInterval(() => void runParentSnapshot(), parentSnapshotIntervalMs);
+    }, 10_000);
+    console.info(
+      `[ParentSnapshot] scheduled: first run in 10s, then every ${config.PARENT_SNAPSHOT_INTERVAL_HOURS}h`,
+    );
   });
+
+  async function runParentSnapshot(): Promise<void> {
+    try {
+      const summary = await parentSnapshotWorker.runOnce();
+      console.info(
+        `[ParentSnapshot] tick complete: snapshotted=${summary.snapshotted} skipped=${summary.skipped} failed=${summary.failed} duration=${(summary.durationMs / 1000).toFixed(1)}s`,
+      );
+    } catch (err) {
+      console.error('[ParentSnapshot] tick failed:', err);
+    }
+  }
 
   client.on(Events.InteractionCreate, async (interaction) => {
     if (!interaction.isChatInputCommand()) return;
@@ -93,6 +129,7 @@ async function main(): Promise<void> {
         interactions: interactionsRepo,
         aiCalls: aiCallsRepo,
         moodTransitions: moodTransitionsRepo,
+        parents: parentsRepo,
         personality,
       });
     } catch (err) {
@@ -111,6 +148,7 @@ async function main(): Promise<void> {
     console.info(`received ${signal}, shutting down`);
     moodLoop.stop();
     if (announcerTimer) clearInterval(announcerTimer);
+    if (parentSnapshotTimer) clearInterval(parentSnapshotTimer);
     client.destroy();
     process.exit(0);
   };

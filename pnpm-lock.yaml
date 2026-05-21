@@ -44,6 +44,9 @@ importers:
       '@bagimon/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@bagimon/holder-data':
+        specifier: workspace:*
+        version: link:../../packages/holder-data
       '@bagimon/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -168,6 +171,18 @@ importers:
         specifier: ^2.43.0
         version: 2.105.4
     devDependencies:
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@20.19.41)
+
+  packages/holder-data:
+    devDependencies:
+      '@types/node':
+        specifier: ^20.11.0
+        version: 20.19.41
       typescript:
         specifier: ^5.4.0
         version: 5.9.3

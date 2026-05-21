@@ -5,6 +5,7 @@ import { Hero } from '../../../components/petdex/Hero';
 import { LiveStats } from '../../../components/petdex/LiveStats';
 import { MoodHistory } from '../../../components/petdex/MoodHistory';
 import { RecentInteractions } from '../../../components/petdex/RecentInteractions';
+import { Family } from '../../../components/petdex/Family';
 import { CoinFooter } from '../../../components/petdex/CoinFooter';
 import { PoweredBy } from '../../../components/petdex/PoweredBy';
 import styles from './page.module.css';
@@ -45,7 +46,7 @@ export default async function PetdexPage({ params }: PageProps) {
   const data = await fetchBagimonForPetdex(params.bagimonId);
   if (!data) notFound();
 
-  const { bagimon, moodHistory, interactions } = data;
+  const { bagimon, moodHistory, interactions, parents } = data;
   const imageSrc = `/api/bagimon/${bagimon.id}/image`;
 
   const dataMood = bagimon.isAlive ? bagimon.currentMood : 'memorial';
@@ -57,6 +58,11 @@ export default async function PetdexPage({ params }: PageProps) {
         <MoodHistory segments={moodHistory} bornAt={bagimon.bornAt} isAlive={bagimon.isAlive} />
         <RecentInteractions
           interactions={interactions}
+          coinSymbol={bagimon.coinSymbol}
+          memorialMode={!bagimon.isAlive}
+        />
+        <Family
+          parents={parents}
           coinSymbol={bagimon.coinSymbol}
           memorialMode={!bagimon.isAlive}
         />

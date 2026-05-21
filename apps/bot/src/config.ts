@@ -89,6 +89,21 @@ const ConfigSchema = z.object({
     .string()
     .optional()
     .transform((v) => v === 'true'),
+  PARENT_SNAPSHOT_INTERVAL_HOURS: z
+    .string()
+    .optional()
+    .transform((v, ctx) => {
+      if (!v || v.length === 0) return 24;
+      const n = Number(v);
+      if (!Number.isFinite(n) || n <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'PARENT_SNAPSHOT_INTERVAL_HOURS must be > 0',
+        });
+        return z.NEVER;
+      }
+      return n;
+    }),
   AI_RATE_LIMIT_BAGIMON_PER_HOUR: z
     .string()
     .optional()

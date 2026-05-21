@@ -327,6 +327,29 @@ Practical implications:
   `/bagimon expedite mint:<mint>` (gated by `ENABLE_EXPEDITE=true`)
   backdates the dying streak so the next tick kills the target — for
   demos / screenshots.
+- ✅ **Phase 6.5 — Parent system (top holders)** — migration
+  `0007_parent_system.sql` reshapes `bagimon_parents` from a current-state
+  table into a per-snapshot history table: drops the legacy
+  `(bagimon_id, wallet_address)` uniqueness, adds `snapshot_at` (NOT NULL,
+  default now), adds `holding_percent_of_supply` (nullable), and adds
+  `(bagimon_id, snapshot_at desc)` index. New `@bagimon/holder-data` package
+  with `HeliusHolderFetcher` (calls `getTokenLargestAccounts` +
+  `getMultipleAccounts` jsonParsed to resolve token accounts → owner
+  wallets, sums duplicates, excludes system/token-program/burn addresses)
+  and a `HolderDataService` wrapper with a 24h in-memory cache.
+  `BagimonParentsRepository` exposes `snapshotParents` (atomic single INSERT
+  of N rows sharing a snapshot_at) and `getLatestParents` (two-step:
+  probe latest snapshot_at, then fetch ranked rows). `ParentSnapshotWorker`
+  runs 10s after bot boot then every `PARENT_SNAPSHOT_INTERVAL_HOURS`
+  (default 24, demo-tunable) with concurrency 3; degrades gracefully when
+  Helius is unavailable (logs warning, returns empty, marks bagimon
+  skipped). New `/bagimon family [mint]` command shows a non-ephemeral
+  embed of top 10 parents (or memorial reply if dead, or "no snapshots
+  yet" if empty). Petdex page renders a new `FAMILY` section between
+  Recent Interactions and Coin Info using `Family.tsx` + CSS Modules;
+  memorial mode swaps the title to `FINAL FAMILY` with sober caption.
+  Periodic cleanup (cap latest 7 snapshots) is a TODO in the migration —
+  deferred until row count actually matters.
 
 ## 13. Discord bot operations
 
@@ -343,5 +366,5 @@ Practical implications:
 
 ---
 
-*Last updated: Phase 5. Update this file whenever a phase completes
+*Last updated: Phase 6.5. Update this file whenever a phase completes
 or a core assumption changes.*

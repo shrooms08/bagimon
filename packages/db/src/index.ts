@@ -14,12 +14,18 @@ export {
 } from './repositories/interactions.js';
 export { AiCallsRepository, type AiCallLogEntry } from './repositories/ai-calls.js';
 export { MoodTransitionsRepository } from './repositories/mood-transitions.js';
+export {
+  BagimonParentsRepository,
+  type SnapshotHolder,
+  type SnapshotParentsInput,
+} from './repositories/bagimon-parents.js';
 export type {
   Bagimon,
   BagimonInsert,
   MoodTransition,
   MoodTransitionInsert,
   BagimonParent,
+  BagimonParentInsert,
   Interaction,
   InteractionInsert,
   AiCall,

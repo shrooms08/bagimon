@@ -40,8 +40,19 @@ export type BagimonParent = {
   wallet_address: string;
   rank: number;
   holding_amount: number;
+  holding_percent_of_supply: number | null;
+  snapshot_at: string;
   first_became_parent_at: string;
   updated_at: string;
+};
+
+export type BagimonParentInsert = {
+  bagimon_id: string;
+  wallet_address: string;
+  rank: number;
+  holding_amount: number;
+  holding_percent_of_supply?: number | null;
+  snapshot_at: string;
 };
 
 export type BagimonInsert = {
@@ -123,7 +134,7 @@ export type Database = {
       };
       bagimon_parents: {
         Row: BagimonParent;
-        Insert: Omit<BagimonParent, 'id' | 'first_became_parent_at' | 'updated_at'>;
+        Insert: BagimonParentInsert;
         Update: Partial<BagimonParent>;
         Relationships: [];
       };

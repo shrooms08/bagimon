@@ -35,16 +35,28 @@ function mockClient(responses: {
   bagimon: unknown;
   moods: unknown[];
   interactions: unknown[];
+  parentLatest?: unknown[];
+  parentRanked?: unknown[];
 }): BagimonSupabaseClient {
+  const parentCallCount = { n: 0 };
   const from = (table: string): QueryBuilder => {
     const builder: QueryBuilder = {
       select: () => builder,
       eq: () => builder,
       order: () => builder,
-      limit: async () =>
-        table === 'mood_transitions'
-          ? { data: responses.moods, error: null }
-          : { data: responses.interactions, error: null },
+      limit: async () => {
+        if (table === 'mood_transitions') return { data: responses.moods, error: null };
+        if (table === 'interactions') return { data: responses.interactions, error: null };
+        if (table === 'bagimon_parents') {
+          parentCallCount.n += 1;
+          const data =
+            parentCallCount.n === 1
+              ? responses.parentLatest ?? []
+              : responses.parentRanked ?? [];
+          return { data, error: null };
+        }
+        return { data: [], error: null };
+      },
       maybeSingle: async () => ({ data: responses.bagimon, error: null }),
     };
     return builder;
