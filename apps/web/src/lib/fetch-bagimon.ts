@@ -101,6 +101,9 @@ export async function fetchBagimonForPetdexWith(
   const interactions: PetdexInteraction[] = (interactionRows ?? []).map((row) => ({
     responseText: row.response_text,
     petterDisplayName: row.petter_discord_display_name,
+    channel: row.channel,
+    actorWallet: row.actor_wallet,
+    action: row.action_type,
     createdAt: new Date(row.created_at),
   }));
 
@@ -141,6 +144,9 @@ export async function fetchBagimonForPetdexWith(
             royaltyBps: bagimon.creator_royalty_bps,
           }
         : null,
+      timesFed: bagimon.times_fed ?? 0,
+      timesPet: bagimon.times_pet ?? 0,
+      lastFedBy: bagimon.last_fed_by ?? null,
     },
     moodHistory,
     interactions,

@@ -1,0 +1,163 @@
+.panel {
+  padding: 18px 20px 20px;
+  transition: transform 0.15s ease;
+}
+.bounce {
+  animation: panelBounce 0.6s ease;
+}
+@keyframes panelBounce {
+  0% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-6px);
+  }
+  55% {
+    transform: translateY(2px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.gate {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.prompt {
+  font-size: 15px;
+  color: var(--ink);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.buttons {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* Chunky, game-like pixel buttons. */
+.feed,
+.pet,
+.primary,
+.retry {
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: var(--ink);
+  background: var(--highlight);
+  padding: 14px 18px;
+  line-height: 1;
+  cursor: pointer;
+  border: none;
+  box-shadow:
+    0 -3px 0 0 var(--shadow),
+    0 3px 0 0 var(--shadow),
+    -3px 0 0 0 var(--shadow),
+    3px 0 0 0 var(--shadow),
+    inset 3px 3px 0 0 color-mix(in oklab, var(--highlight) 60%, white 40%),
+    inset -3px -3px 0 0 color-mix(in oklab, var(--highlight) 60%, black 30%);
+  clip-path: polygon(
+    4px 0,
+    calc(100% - 4px) 0,
+    100% 4px,
+    100% calc(100% - 4px),
+    calc(100% - 4px) 100%,
+    4px 100%,
+    0 calc(100% - 4px),
+    0 4px
+  );
+  transition: transform 0.08s ease;
+}
+.feed {
+  background: color-mix(in oklab, var(--accent) 35%, var(--highlight));
+}
+.pet {
+  background: color-mix(in oklab, var(--accent) 18%, var(--highlight));
+}
+.primary {
+  background: var(--accent);
+  color: var(--accent-ink, white);
+}
+.feed:active:not(:disabled),
+.pet:active:not(:disabled),
+.primary:active:not(:disabled),
+.retry:active:not(:disabled) {
+  transform: translateY(3px);
+}
+.feed:disabled,
+.pet:disabled,
+.primary:disabled,
+.retry:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.retry {
+  font-size: 9px;
+  padding: 10px 12px;
+  background: transparent;
+  box-shadow:
+    0 -2px 0 0 var(--shadow),
+    0 2px 0 0 var(--shadow),
+    -2px 0 0 0 var(--shadow),
+    2px 0 0 0 var(--shadow);
+}
+
+.reaction {
+  font-size: 15px;
+  font-style: italic;
+  color: var(--ink);
+  margin: 0;
+  line-height: 1.5;
+}
+.connectedAs,
+.lastFed {
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: var(--ink-soft);
+}
+.coinLink {
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: var(--accent-dark);
+  text-decoration: none;
+}
+.coinLink:hover {
+  text-decoration: underline;
+}
+.error {
+  font-size: 13px;
+  color: var(--danger, #b23);
+  margin: 12px 0 0;
+}
+.memorial {
+  font-style: italic;
+  color: var(--ink-soft);
+  margin: 0 0 12px;
+}
+.counters {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 2px dotted var(--shadow);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: var(--ink-soft);
+}
+.counters strong {
+  color: var(--ink);
+}
+.lastFed {
+  margin-left: auto;
+}

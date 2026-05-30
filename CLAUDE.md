@@ -350,6 +350,36 @@ Practical implications:
   memorial mode swaps the title to `FINAL FAMILY` with sober caption.
   Periodic cleanup (cap latest 7 snapshots) is a TODO in the migration —
   deferred until row count actually matters.
+- ✅ **Phase 7.4 — Wallet-gated holder interactions on Petdex** — holders
+  connect a Solana wallet on a Petdex page, prove ownership with a free
+  signature (no gas), and feed/pet their Bagimon on the page. Migration
+  `0009_web_interactions.sql` relaxes the Discord-only NOT NULLs on
+  `interactions`, adds `channel` ('discord'|'web'), `actor_wallet`,
+  `action_type` ('pet'|'feed'), a `(actor_wallet, bagimon_id, created_at)`
+  cooldown index, and `times_fed`/`times_pet`/`last_fed_at`/`last_fed_by`/
+  `last_interaction_at` counters on `bagimons`. `source` is left meaning
+  *generation method* (haiku/fallback) — platform lives in the new `channel`
+  column, never overloaded. Auth is stateless (no nonce table): `GET
+  /api/bagimon/[id]/nonce` issues a short-lived signed-JWT nonce + the exact
+  message to sign; `POST .../verify-holder` verifies the ed25519 signature
+  (tweetnacl), reconstructs the message from trusted nonce claims, reads the
+  wallet's mint balance via Helius `getTokenAccountsByOwner`, and on success
+  sets a 30-min httpOnly session-JWT cookie (jose, `INTERACTION_JWT_SECRET`).
+  `POST .../interact` trusts the wallet ONLY from the session cookie, enforces
+  a per-wallet/per-action cooldown (default 60 min) by querying `interactions`,
+  refuses dead Bagimons, records a unified `interactions` row (`channel='web'`,
+  static `fallback` response — zero AI cost), and bumps counters via
+  `BagimonRepository.applyInteraction`. **Feeding is cosmetic only — it does
+  NOT touch the on-chain death clock** (see §8). Frontend: `WalletProvider`
+  ('use client', Phantom+Solflare, `NEXT_PUBLIC_SOLANA_RPC_URL`) and
+  `InteractPanel` ('use client') are islands mounted in the still-server
+  Petdex page; states cover not-connected / connected-unverified /
+  not-holder / verified / dead. `RecentInteractions` now renders both
+  Discord (`@user pet`) and web (`8xX2…ab39 fed $SYM`) rows from the unified
+  table plus a "Fed N · Pet N" counter line. New env: `NEXT_PUBLIC_SOLANA_RPC_URL`,
+  `INTERACTION_JWT_SECRET` (+ optional `MIN_HOLD_AMOUNT`,
+  `INTERACTION_COOLDOWN_MINUTES`) — must be set on Vercel, and migration 0009
+  applied in the Supabase SQL editor before the feature works.
 
 ## 13. Discord bot operations
 
@@ -366,5 +396,5 @@ Practical implications:
 
 ---
 
-*Last updated: Phase 6.5. Update this file whenever a phase completes
+*Last updated: Phase 7.4. Update this file whenever a phase completes
 or a core assumption changes.*

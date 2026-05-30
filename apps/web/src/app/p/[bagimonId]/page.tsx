@@ -9,6 +9,8 @@ import { RecentInteractions } from '../../../components/petdex/RecentInteraction
 import { Family } from '../../../components/petdex/Family';
 import { CoinFooter } from '../../../components/petdex/CoinFooter';
 import { PoweredBy } from '../../../components/petdex/PoweredBy';
+import { BagimonWalletProvider } from '../../../components/wallet/WalletProvider';
+import { InteractPanel } from '../../../components/petdex/InteractPanel';
 import styles from './page.module.css';
 
 interface PageProps {
@@ -56,11 +58,24 @@ export default async function PetdexPage({ params }: PageProps) {
       <main className="page">
         <Hero bagimon={bagimon} imageSrc={imageSrc} />
         <LiveStats bagimon={bagimon} />
+        <BagimonWalletProvider>
+          <InteractPanel
+            bagimonId={bagimon.id}
+            coinSymbol={bagimon.coinSymbol}
+            coinMint={bagimon.coinMint}
+            isAlive={bagimon.isAlive}
+            timesFed={bagimon.timesFed}
+            timesPet={bagimon.timesPet}
+            lastFedBy={bagimon.lastFedBy}
+          />
+        </BagimonWalletProvider>
         <BagsPanels bagimon={bagimon} />
         <MoodHistory segments={moodHistory} bornAt={bagimon.bornAt} isAlive={bagimon.isAlive} />
         <RecentInteractions
           interactions={interactions}
           coinSymbol={bagimon.coinSymbol}
+          timesFed={bagimon.timesFed}
+          timesPet={bagimon.timesPet}
           memorialMode={!bagimon.isAlive}
         />
         <Family

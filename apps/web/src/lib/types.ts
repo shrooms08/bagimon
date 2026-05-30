@@ -25,6 +25,9 @@ export interface PetdexBagimon {
   lastStatsAt: Date | null;
   lifetimeFeesSol: number | null;
   creator: PetdexCreator | null;
+  timesFed: number;
+  timesPet: number;
+  lastFedBy: string | null;
 }
 
 export interface PetdexCreator {
@@ -44,7 +47,11 @@ export interface PetdexMoodSegment {
 
 export interface PetdexInteraction {
   responseText: string;
-  petterDisplayName: string;
+  // Discord display name (web rows have null); for web rows, actorWallet is set.
+  petterDisplayName: string | null;
+  channel: 'discord' | 'web';
+  actorWallet: string | null;
+  action: 'pet' | 'feed';
   createdAt: Date;
 }
 

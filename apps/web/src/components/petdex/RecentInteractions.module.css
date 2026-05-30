@@ -79,6 +79,35 @@
   margin: -4px 4px 14px;
   font-size: 13px;
 }
+.counters {
+  margin: -4px 4px 16px;
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: var(--ink-soft);
+  letter-spacing: 0.3px;
+}
+.counters strong {
+  color: var(--accent-dark);
+}
+.web {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.wallet {
+  font-family: var(--font-press-start), 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: var(--ink);
+  background: var(--highlight);
+  padding: 4px 7px 5px;
+  line-height: 1;
+  box-shadow:
+    0 -2px 0 0 var(--shadow),
+    0 2px 0 0 var(--shadow),
+    -2px 0 0 0 var(--shadow),
+    2px 0 0 0 var(--shadow);
+}
 .empty {
   font-style: italic;
   color: var(--ink-soft);

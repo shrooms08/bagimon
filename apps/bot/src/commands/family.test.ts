@@ -43,6 +43,11 @@ function makeBagimon(overrides: Partial<Bagimon> = {}): Bagimon {
     creator_royalty_bps: null,
     bags_synced_at: null,
     bags_sync_error: null,
+    times_fed: 0,
+    times_pet: 0,
+    last_fed_at: null,
+    last_fed_by: null,
+    last_interaction_at: null,
     ...overrides,
   };
 }

@@ -222,4 +222,37 @@ export class BagimonRepository {
       .eq('id', id);
     if (error) throw new Error(`touchActivity failed: ${error.message}`);
   }
+
+  // Apply a verified web interaction's cosmetic effect: bump the relevant
+  // counter and last-interaction timestamp. Feed also records who/when last fed.
+  // NOTE: read-modify-write (no atomic SQL increment to avoid an RPC migration).
+  // Per-wallet cooldowns make concurrent writes on one bagimon rare; a lost
+  // increment under contention is acceptable for a cosmetic counter.
+  // This deliberately does NOT touch the on-chain death clock — feeding is an
+  // engagement signal only (see CLAUDE.md §8 death mechanic).
+  async applyInteraction(
+    id: string,
+    action: 'pet' | 'feed',
+    actorWallet: string,
+  ): Promise<{ times_fed: number; times_pet: number }> {
+    const current = await this.findById(id);
+    if (!current) throw new Error(`bagimon ${id} not found`);
+    const now = new Date().toISOString();
+    const next = {
+      times_fed: current.times_fed + (action === 'feed' ? 1 : 0),
+      times_pet: current.times_pet + (action === 'pet' ? 1 : 0),
+    };
+    const update: Partial<Bagimon> = {
+      ...next,
+      last_interaction_at: now,
+      updated_at: now,
+    };
+    if (action === 'feed') {
+      update.last_fed_at = now;
+      update.last_fed_by = actorWallet;
+    }
+    const { error } = await this.client.from('bagimons').update(update).eq('id', id);
+    if (error) throw new Error(`applyInteraction failed: ${error.message}`);
+    return next;
+  }
 }

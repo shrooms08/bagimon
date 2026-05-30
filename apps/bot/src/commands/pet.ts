@@ -136,7 +136,7 @@ export async function handlePet(
       at: new Date(t.created_at),
     })),
     previousInteractions: recentInteractions.map((i) => ({
-      petterDisplayName: i.petter_discord_display_name,
+      petterDisplayName: i.petter_discord_display_name ?? 'someone',
       response: i.response_text,
       at: new Date(i.created_at),
     })),

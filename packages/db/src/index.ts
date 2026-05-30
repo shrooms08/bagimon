@@ -11,6 +11,7 @@ export {
 export {
   InteractionsRepository,
   type RecordInteractionInput,
+  type RecordWebInteractionInput,
 } from './repositories/interactions.js';
 export { AiCallsRepository, type AiCallLogEntry } from './repositories/ai-calls.js';
 export { MoodTransitionsRepository } from './repositories/mood-transitions.js';
@@ -28,6 +29,8 @@ export type {
   BagimonParentInsert,
   Interaction,
   InteractionInsert,
+  InteractionChannel,
+  InteractionAction,
   AiCall,
   AiCallInsert,
   Database,

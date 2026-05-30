@@ -33,6 +33,11 @@ export type Bagimon = {
   creator_royalty_bps: number | null;
   bags_synced_at: string | null;
   bags_sync_error: string | null;
+  times_fed: number;
+  times_pet: number;
+  last_fed_at: string | null;
+  last_fed_by: string | null;
+  last_interaction_at: string | null;
 };
 
 export type MoodTransition = {
@@ -83,22 +88,31 @@ export type MoodTransitionInsert = {
   created_at?: string;
 };
 
+export type InteractionChannel = 'discord' | 'web';
+export type InteractionAction = 'pet' | 'feed';
+
 export type Interaction = {
   id: string;
   bagimon_id: string;
-  petter_discord_user_id: string;
-  petter_discord_display_name: string;
+  petter_discord_user_id: string | null;
+  petter_discord_display_name: string | null;
   response_text: string;
   source: 'haiku' | 'fallback';
+  channel: InteractionChannel;
+  actor_wallet: string | null;
+  action_type: InteractionAction;
   created_at: string;
 };
 
 export type InteractionInsert = {
   bagimon_id: string;
-  petter_discord_user_id: string;
-  petter_discord_display_name: string;
+  petter_discord_user_id?: string | null;
+  petter_discord_display_name?: string | null;
   response_text: string;
   source: 'haiku' | 'fallback';
+  channel?: InteractionChannel;
+  actor_wallet?: string | null;
+  action_type?: InteractionAction;
 };
 
 export type AiCall = {
