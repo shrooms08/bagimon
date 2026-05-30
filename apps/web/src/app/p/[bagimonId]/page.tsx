@@ -64,6 +64,7 @@ export default async function PetdexPage({ params }: PageProps) {
             coinSymbol={bagimon.coinSymbol}
             coinMint={bagimon.coinMint}
             isAlive={bagimon.isAlive}
+            mood={bagimon.currentMood}
             timesFed={bagimon.timesFed}
             timesPet={bagimon.timesPet}
             lastFedBy={bagimon.lastFedBy}

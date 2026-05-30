@@ -381,6 +381,18 @@ Practical implications:
   `INTERACTION_COOLDOWN_MINUTES`) — must be set on Vercel, and migration 0009
   applied in the Supabase SQL editor before the feature works.
 
+- ✅ **Phase 7.5 — "Trade on Bags" CTA** — frontend-only. `InteractPanel`
+  now takes the bagimon's `mood` and renders a link to the coin's own Bags
+  trade page (`https://bags.fm/<coin_mint>`). For `hungry`/`sick`/`dying` it
+  elevates to a chunky, mood-coloured CTA with state-aware copy ("only real
+  on-chain activity can save it"); for `happy`/`thriving` it's a quiet text
+  link. A feed/pet cooldown rejection now reframes intent toward trading, and
+  a philosophy line states the honest cosmetic-vs-real distinction. The app
+  never builds, signs, or submits a transaction — it's a plain anchor to
+  bags.fm. No new routes, migration, or env vars. Death/mood logic unchanged;
+  trading helps only indirectly, via the real on-chain volume the mood loop
+  already reads.
+
 ## 13. Discord bot operations
 
 - **Deploy slash commands** (run once per command change): from repo root,
@@ -396,5 +408,5 @@ Practical implications:
 
 ---
 
-*Last updated: Phase 7.4. Update this file whenever a phase completes
+*Last updated: Phase 7.5. Update this file whenever a phase completes
 or a core assumption changes.*

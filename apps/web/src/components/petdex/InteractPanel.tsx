@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import bs58 from 'bs58';
+import type { Mood } from '@bagimon/shared';
 import { Panel } from '../ui/Panel';
 import styles from './InteractPanel.module.css';
 
@@ -12,12 +13,21 @@ interface Props {
   coinSymbol: string | null;
   coinMint: string;
   isAlive: boolean;
+  mood: Mood;
   timesFed: number;
   timesPet: number;
   lastFedBy: string | null;
 }
 
 type Action = 'feed' | 'pet';
+
+// Moods where real on-chain trading is the only thing that revives the coin —
+// and therefore the Bagimon. Elevate the "Trade on Bags" CTA in these states.
+const ELEVATED_COPY: Partial<Record<Mood, (sym: string) => string>> = {
+  hungry: (s) => `${s} is hungry. Real trades feed it. Trade on Bags →`,
+  sick: (s) => `${s} is sick. Trading volume is the medicine. Trade on Bags →`,
+  dying: (s) => `${s} is dying. Only real on-chain activity can save it. Trade on Bags →`,
+};
 
 function truncate(addr: string): string {
   return addr.length > 9 ? `${addr.slice(0, 4)}…${addr.slice(-4)}` : addr;
@@ -35,9 +45,12 @@ export function InteractPanel(props: Props) {
   const [timesPet, setTimesPet] = useState(props.timesPet);
   const [lastFedBy, setLastFedBy] = useState(props.lastFedBy);
   const [cooldowns, setCooldowns] = useState<{ feed: number; pet: number }>({ feed: 0, pet: 0 });
+  const [cooldownNotice, setCooldownNotice] = useState<Action | null>(null);
   const [now, setNow] = useState(() => Date.now());
 
   const symbol = props.coinSymbol ? `$${props.coinSymbol}` : 'this coin';
+  const tradeUrl = `https://bags.fm/${props.coinMint}`;
+  const elevatedCopy = ELEVATED_COPY[props.mood];
 
   // Reset verification whenever the connected wallet changes.
   useEffect(() => {
@@ -123,11 +136,13 @@ export function InteractPanel(props: Props) {
           setTimesPet(data.newState.timesPet);
           setLastFedBy(data.newState.lastFedBy);
           setReaction(data.response ?? null);
+          setCooldownNotice(null);
           setBounce(true);
           setTimeout(() => setBounce(false), 600);
           setCooldowns((c) => ({ ...c, [action]: Date.parse(data.newState!.nextAvailableAt) }));
         } else if (data.reason === 'cooldown' && data.nextAvailableAt) {
           setCooldowns((c) => ({ ...c, [action]: Date.parse(data.nextAvailableAt!) }));
+          setCooldownNotice(action);
         } else if (data.reason === 'not_verified') {
           setVerified(false);
           setError('Session expired — verify again.');
@@ -228,12 +243,48 @@ export function InteractPanel(props: Props) {
               </button>
             </div>
             {reaction ? <p className={styles.reaction}>{reaction}</p> : null}
+            {cooldownNotice ? (
+              <p className={styles.cooldownNotice}>
+                You&rsquo;ve {cooldownNotice === 'feed' ? 'fed' : 'pet'} {symbol} recently. Want to
+                really help it grow?{' '}
+                <a href={tradeUrl} target="_blank" rel="noopener noreferrer">
+                  Trade on Bags →
+                </a>
+              </p>
+            ) : null}
             <p className={styles.connectedAs}>
               connected as {publicKey ? truncate(publicKey.toBase58()) : ''}
             </p>
           </div>
         )}
         {error ? <p className={styles.error}>{error}</p> : null}
+
+        <div className={styles.tradeArea}>
+          <p className={styles.philosophy}>
+            Feeding and petting show your Bagimon love. But only real trades keep its coin — and
+            your Bagimon — alive.
+          </p>
+          {elevatedCopy ? (
+            <a
+              className={styles.tradeCta}
+              href={tradeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {elevatedCopy(symbol)}
+            </a>
+          ) : (
+            <a
+              className={styles.tradeLink}
+              href={tradeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Trade {symbol} on Bags ↗
+            </a>
+          )}
+        </div>
+
         {counters}
       </Panel>
     </section>
