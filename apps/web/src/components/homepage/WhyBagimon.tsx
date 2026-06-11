@@ -13,8 +13,8 @@ export function WhyBagimon() {
         </p>
         <p className={styles.para}>
           Built natively on Bags.fm: every Bagimon tracks its coin&apos;s top 10 holders as
-          &ldquo;parents,&rdquo; lives in its community&apos;s Discord, and reflects real-time DEX
-          activity. Partner-key revenue alignment with Bags is built into the roadmap.
+          &ldquo;parents,&rdquo; lives on a shareable Petdex page, and reflects real-time on-chain
+          activity. Holders connect their wallet to care for it; creators can claim their own.
         </p>
         <p className={styles.para}>
           Death is permanent. Memorial pages live forever as records that the coin once mattered.

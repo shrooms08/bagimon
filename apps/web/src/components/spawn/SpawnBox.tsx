@@ -65,7 +65,7 @@ export function SpawnBox() {
           disabled={busy}
         />
         <button className={styles.button} type="submit" disabled={busy || !mint.trim()}>
-          {busy ? 'Spawning…' : 'Spawn Bagimon'}
+          {busy ? 'SPAWNING…' : 'SPAWN BAGIMON ▶'}
         </button>
       </div>
       {error && (

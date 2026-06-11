@@ -1,23 +1,11 @@
-.section {
-  padding: 64px 24px;
-  border-top: 2px solid var(--ink);
-}
-
-.inner {
-  max-width: 880px;
-  margin: 0 auto;
-}
-
-.heading {
-  font-size: 28px;
-  margin: 0 0 12px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
+.panel {
+  padding: 24px 24px 26px;
 }
 
 .body {
-  font-size: 15px;
+  font-size: 13px;
   line-height: 1.6;
-  margin: 0 0 28px;
+  margin: 0 0 20px;
   max-width: 520px;
+  color: var(--ink-soft);
 }

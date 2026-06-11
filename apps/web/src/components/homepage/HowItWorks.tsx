@@ -9,8 +9,8 @@ const STEPS = [
   },
   {
     n: '02',
-    title: 'Add the bot to your Discord',
-    body: "Your Bagimon lives in your community's server. Pet it, watch it grow, share its profile.",
+    title: 'Spawn its Bagimon',
+    body: "Paste the coin's mint to bring its creature to life. Creators can claim their own. Got a Discord? You can add Bagimon there too.",
   },
   {
     n: '03',

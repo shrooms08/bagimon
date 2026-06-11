@@ -1,16 +1,17 @@
+import { Panel } from '../ui/Panel';
 import { SpawnBox } from '../spawn/SpawnBox';
 import styles from './SpawnSection.module.css';
 
 export function SpawnSection() {
   return (
-    <section className={styles.section} id="spawn">
-      <div className={styles.inner}>
-        <h2 className={styles.heading}>Spawn one now</h2>
+    <section aria-label="Spawn a Bagimon" id="spawn">
+      <h2 className="section-title">SPAWN ONE NOW</h2>
+      <Panel className={styles.panel}>
         <p className={styles.body}>
-          Got a Bags coin? Paste its mint and meet its Bagimon. No Discord required.
+          Got a Bags coin? Paste its mint and meet its Bagimon. No install required.
         </p>
         <SpawnBox />
-      </div>
+      </Panel>
     </section>
   );
 }

@@ -5,7 +5,6 @@ import styles from './Hero.module.css';
 const GITHUB_URL = 'https://github.com/shrooms08/bagimon';
 
 export function Hero() {
-  const invite = process.env.NEXT_PUBLIC_DISCORD_INVITE_URL ?? '';
   return (
     <Panel as="section" className={styles.hero}>
       <div className={styles.logo} aria-hidden="true">
@@ -39,15 +38,9 @@ export function Hero() {
         <em>Built for the Bags Hackathon Q1 2026.</em>
       </p>
       <div className={styles.ctaRow}>
-        {invite ? (
-          <a className={styles.cta} href={invite} target="_blank" rel="noopener noreferrer">
-            INSTALL ON DISCORD ▶
-          </a>
-        ) : (
-          <Link className={styles.cta} href="/">
-            INSTALL ON DISCORD ▶
-          </Link>
-        )}
+        <Link className={styles.cta} href="/spawn">
+          SPAWN A BAGIMON ▶
+        </Link>
         <a
           className={styles.ghLink}
           href={GITHUB_URL}
