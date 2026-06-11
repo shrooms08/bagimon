@@ -1,4 +1,5 @@
 import { Hero } from '../components/homepage/Hero';
+import { SpawnSection } from '../components/homepage/SpawnSection';
 import { LiveBagimons } from '../components/homepage/LiveBagimons';
 import { HowItWorks } from '../components/homepage/HowItWorks';
 import { MoodLifecycle } from '../components/homepage/MoodLifecycle';
@@ -20,6 +21,7 @@ export default async function HomePage() {
   return (
     <main className="page" data-mood="happy">
       <Hero />
+      <SpawnSection />
       <LiveBagimons bagimons={liveBagimons} />
       <HowItWorks />
       <MoodLifecycle />

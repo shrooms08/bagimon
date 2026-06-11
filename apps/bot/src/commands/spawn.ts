@@ -1,11 +1,5 @@
 import { EmbedBuilder, type ChatInputCommandInteraction } from 'discord.js';
-import type { BagimonRepository } from '@bagimon/db';
-import {
-  validateBagsPool,
-  fetchLifetimeFees,
-  fetchCreators,
-  getPrimaryCreator,
-} from '@bagimon/bags-api';
+import { type BagimonRepository, createBagimon, NotABagsCoinError } from '@bagimon/db';
 import { isLikelyMint, shortMint } from '../lib/mint.js';
 import { renderBagimonAttachment } from '../lib/bagimon-image.js';
 
@@ -37,9 +31,16 @@ export async function handleSpawn(
     return;
   }
 
-  if (process.env.BAGS_API_KEY) {
-    const isBagsCoin = await validateBagsPool(mint);
-    if (!isBagsCoin) {
+  let bagimon;
+  try {
+    bagimon = await createBagimon(repo, mint, {
+      discordServerId: interaction.guildId,
+      discordServerName: interaction.guild?.name ?? null,
+      spawnedByDiscordUserId: interaction.user.id,
+      createdVia: 'discord',
+    });
+  } catch (err) {
+    if (err instanceof NotABagsCoinError) {
       await interaction.editReply({
         content: [
           "🤔 That doesn't look like a Bags coin.",
@@ -52,36 +53,8 @@ export async function handleSpawn(
       });
       return;
     }
+    throw err;
   }
-
-  const [feesResult, creatorsResult] = await Promise.all([
-    fetchLifetimeFees(mint),
-    fetchCreators(mint),
-  ]);
-  const primaryCreator = creatorsResult ? getPrimaryCreator(creatorsResult) : null;
-
-  const bagimon = await repo.spawn({
-    discord_server_id: interaction.guildId,
-    discord_server_name: interaction.guild?.name ?? null,
-    coin_mint: mint,
-    spawned_by_discord_user_id: interaction.user.id,
-  });
-
-  await repo.updateBagsData(bagimon.id, {
-    lifetimeFeesLamports: feesResult?.lamports ?? null,
-    lifetimeFeesSol: feesResult?.sol ?? null,
-    creator: primaryCreator
-      ? {
-          provider: primaryCreator.provider ?? null,
-          username: primaryCreator.username ?? null,
-          providerUsername: primaryCreator.providerUsername ?? null,
-          wallet: primaryCreator.wallet ?? null,
-          pfp: primaryCreator.pfp ?? null,
-          royaltyBps: primaryCreator.royaltyBps ?? null,
-        }
-      : null,
-    error: null,
-  });
 
   const { attachment, species } = await renderBagimonAttachment(
     mint,

@@ -9,6 +9,11 @@ export {
   type SpawnBagimonInput,
 } from './repositories/bagimons.js';
 export {
+  createBagimon,
+  NotABagsCoinError,
+  type CreateBagimonOptions,
+} from './create-bagimon.js';
+export {
   InteractionsRepository,
   type RecordInteractionInput,
   type RecordWebInteractionInput,
@@ -23,6 +28,7 @@ export {
 export type {
   Bagimon,
   BagimonInsert,
+  BagimonCreatedVia,
   MoodTransition,
   MoodTransitionInsert,
   BagimonParent,

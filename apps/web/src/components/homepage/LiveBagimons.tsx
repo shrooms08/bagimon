@@ -26,6 +26,11 @@ export function LiveBagimons({ bagimons }: Props) {
             />
             <div className={styles.symbol}>
               {b.coinSymbol ? `$${b.coinSymbol}` : 'BAGIMON'}
+              {b.claimed ? (
+                <span className={styles.claimed} title="Claimed by its creator" aria-label="Claimed by its creator">
+                  {' '}👑
+                </span>
+              ) : null}
             </div>
             <div className={`${styles.moodChip} ${styles[`mood_${b.currentMood}`] ?? ''}`}>
               {b.currentMood.toUpperCase()}

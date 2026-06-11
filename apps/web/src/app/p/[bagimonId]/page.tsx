@@ -11,6 +11,7 @@ import { CoinFooter } from '../../../components/petdex/CoinFooter';
 import { PoweredBy } from '../../../components/petdex/PoweredBy';
 import { BagimonWalletProvider } from '../../../components/wallet/WalletProvider';
 import { InteractPanel } from '../../../components/petdex/InteractPanel';
+import { ClaimPanel } from '../../../components/petdex/ClaimPanel';
 import styles from './page.module.css';
 
 interface PageProps {
@@ -51,6 +52,7 @@ export default async function PetdexPage({ params }: PageProps) {
 
   const { bagimon, moodHistory, interactions, parents } = data;
   const imageSrc = `/api/bagimon/${bagimon.id}/image`;
+  const creatorLabel = bagimon.creator?.username ?? bagimon.creator?.providerUsername ?? null;
 
   const dataMood = bagimon.isAlive ? bagimon.currentMood : 'memorial';
   return (
@@ -59,6 +61,13 @@ export default async function PetdexPage({ params }: PageProps) {
         <Hero bagimon={bagimon} imageSrc={imageSrc} />
         <LiveStats bagimon={bagimon} />
         <BagimonWalletProvider>
+          <ClaimPanel
+            bagimonId={bagimon.id}
+            coinSymbol={bagimon.coinSymbol}
+            ownerWallet={bagimon.ownerWallet}
+            creatorWallet={bagimon.creator?.wallet ?? null}
+            creatorLabel={creatorLabel}
+          />
           <InteractPanel
             bagimonId={bagimon.id}
             coinSymbol={bagimon.coinSymbol}

@@ -11,6 +11,7 @@ export interface HomepageBagimon {
   speciesDisplayName: string;
   coinSymbol: string | null;
   currentMood: Mood;
+  claimed: boolean;
 }
 
 let cachedTraits: TraitsConfig | null = null;
@@ -46,6 +47,7 @@ export async function fetchLiveBagimonsForHomepageWith(
       speciesDisplayName: species.displayName,
       coinSymbol: row.coin_symbol,
       currentMood: row.current_mood as Mood,
+      claimed: row.owner_wallet != null,
     };
   });
 }

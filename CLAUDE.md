@@ -408,5 +408,41 @@ Practical implications:
 
 ---
 
-*Last updated: Phase 7.5. Update this file whenever a phase completes
+## 12.x Phase 7.6 — Self-serve web spawn + creator-verified claim
+
+- ✅ **Phase 7.6** — migration `0010_bagimon_ownership.sql` adds
+  `owner_wallet`, `claimed_at`, and `created_via` ('discord'|'web') on
+  `bagimons`; relaxes the Discord-only NOT NULLs on `discord_server_id` /
+  `spawned_by_discord_user_id` (web rows leave them null); and adds partial
+  unique `idx_bagimons_web_mint` on `coin_mint WHERE created_via='web'` so each
+  coin has at most one canonical web Bagimon. Spawn creation was extracted out
+  of the Discord handler into a shared `createBagimon(repo, coinMint, opts)` in
+  `@bagimon/db` (new dep `@bagimon/bags-api`): validates the Bags pool (throws
+  `NotABagsCoinError` when a key is set), eagerly syncs Bags fees+creator,
+  inserts, returns. Both `/bagimon spawn` and the web route call it (Discord
+  behavior unchanged, `created_via='discord'`). **Lazy web spawn:** `POST
+  /api/bagimon/spawn` `{coinMint}` returns an existing Bagimon's id if one
+  exists (`repo.findByMint`, prefers the web row) else validates + creates
+  (`createdVia:'web'`); the `SpawnBox` island redirects to `/p/[id]`. Spawn UI
+  is on the homepage (`SpawnSection`) and a dedicated `/spawn` page.
+  **Creator claim:** `interaction-auth` gained a `NoncePurpose`
+  ('interact'|'claim') baked into both the nonce JWT and the signed message so
+  a signature for one purpose can't be replayed for the other; `GET
+  .../claim-nonce` mints a claim nonce, `POST .../claim` verifies the ed25519
+  signature, resolves the coin's primary creator live via
+  `fetchCreators`+`getPrimaryCreator` (falls back to stored `creator_wallet`),
+  and sets `owner_wallet` ONLY when the signing wallet === primary creator
+  (v1: primary creator only, `isCreator:true`). `repo.claim` is a guarded
+  update (owner_wallet null) — idempotent for the same wallet, rejects others.
+  The wallet is trusted ONLY from the verified signature, never the body.
+  **Claim is an ownership record, not custody** — no funds, no on-chain writes.
+  Petdex renders a `ClaimPanel` island (claimed 👑 badge / "Claim your
+  Bagimon" for the creator / quiet "Unclaimed"); homepage LIVE NOW cards show
+  a 👑 on claimed Bagimons. The `DeathAnnouncer` skips web-spawned Bagimons
+  (no Discord server). No new env vars — web validation/claim reuse
+  `BAGS_API_KEY`, `INTERACTION_JWT_SECRET`, and `SUPABASE_SERVICE_ROLE_KEY`.
+  **Migration 0010 must be applied in the Supabase SQL editor before the
+  feature works.**
+
+*Last updated: Phase 7.6. Update this file whenever a phase completes
 or a core assumption changes.*

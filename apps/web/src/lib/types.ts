@@ -28,6 +28,9 @@ export interface PetdexBagimon {
   timesFed: number;
   timesPet: number;
   lastFedBy: string | null;
+  ownerWallet: string | null;
+  claimedAt: Date | null;
+  createdVia: 'discord' | 'web';
 }
 
 export interface PetdexCreator {

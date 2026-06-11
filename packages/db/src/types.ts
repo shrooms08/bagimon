@@ -1,8 +1,10 @@
 import type { Mood } from '@bagimon/shared';
 
+export type BagimonCreatedVia = 'discord' | 'web';
+
 export type Bagimon = {
   id: string;
-  discord_server_id: string;
+  discord_server_id: string | null;
   discord_server_name: string | null;
   coin_mint: string;
   coin_symbol: string | null;
@@ -12,7 +14,10 @@ export type Bagimon = {
   born_at: string;
   died_at: string | null;
   last_activity_at: string;
-  spawned_by_discord_user_id: string;
+  spawned_by_discord_user_id: string | null;
+  created_via: BagimonCreatedVia;
+  owner_wallet: string | null;
+  claimed_at: string | null;
   created_at: string;
   updated_at: string;
   last_stats_at: string | null;
@@ -71,13 +76,14 @@ export type BagimonParentInsert = {
 };
 
 export type BagimonInsert = {
-  discord_server_id: string;
+  discord_server_id?: string | null;
   discord_server_name?: string | null;
   coin_mint: string;
   coin_symbol?: string | null;
   coin_name?: string | null;
   current_mood?: Mood;
-  spawned_by_discord_user_id: string;
+  spawned_by_discord_user_id?: string | null;
+  created_via?: BagimonCreatedVia;
 };
 
 export type MoodTransitionInsert = {

@@ -64,3 +64,8 @@
 .link:hover {
   color: var(--accent-dark);
 }
+
+.claimed {
+  font-size: 0.85em;
+  vertical-align: middle;
+}

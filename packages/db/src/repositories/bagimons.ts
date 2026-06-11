@@ -1,14 +1,15 @@
 import type { Mood } from '@bagimon/shared';
 import type { BagimonSupabaseClient } from '../client.js';
-import type { Bagimon, BagimonInsert } from '../types.js';
+import type { Bagimon, BagimonCreatedVia, BagimonInsert } from '../types.js';
 
 export interface SpawnBagimonInput {
-  discord_server_id: string;
+  discord_server_id?: string | null;
   discord_server_name?: string | null;
   coin_mint: string;
-  spawned_by_discord_user_id: string;
+  spawned_by_discord_user_id?: string | null;
   coin_symbol?: string | null;
   coin_name?: string | null;
+  created_via?: BagimonCreatedVia;
 }
 
 export class BagimonRepository {
@@ -16,12 +17,13 @@ export class BagimonRepository {
 
   async spawn(input: SpawnBagimonInput): Promise<Bagimon> {
     const insert: BagimonInsert = {
-      discord_server_id: input.discord_server_id,
+      discord_server_id: input.discord_server_id ?? null,
       discord_server_name: input.discord_server_name ?? null,
       coin_mint: input.coin_mint,
       coin_symbol: input.coin_symbol ?? null,
       coin_name: input.coin_name ?? null,
-      spawned_by_discord_user_id: input.spawned_by_discord_user_id,
+      spawned_by_discord_user_id: input.spawned_by_discord_user_id ?? null,
+      created_via: input.created_via ?? 'discord',
       current_mood: 'happy',
     };
 
@@ -33,9 +35,10 @@ export class BagimonRepository {
 
     if (error) {
       if (error.code === '23505') {
-        throw new Error(
-          `bagimon already exists for server ${input.discord_server_id} and mint ${input.coin_mint}`,
-        );
+        const scope = input.discord_server_id
+          ? `server ${input.discord_server_id} and mint ${input.coin_mint}`
+          : `web spawn of mint ${input.coin_mint}`;
+        throw new Error(`bagimon already exists for ${scope}`);
       }
       throw new Error(`failed to spawn bagimon: ${error.message}`);
     }
@@ -84,6 +87,37 @@ export class BagimonRepository {
       .eq('id', id)
       .maybeSingle();
     if (error) throw new Error(`findById failed: ${error.message}`);
+    return data;
+  }
+
+  // Canonical lookup for a coin across all origins. Prefers the web-spawned
+  // row (one per mint, guaranteed by idx_bagimons_web_mint) so the web spawn
+  // route returns a stable Petdex; falls back to the earliest Discord row.
+  async findByMint(mint: string): Promise<Bagimon | null> {
+    const { data, error } = await this.client
+      .from('bagimons')
+      .select()
+      .eq('coin_mint', mint)
+      .order('created_via', { ascending: false }) // 'web' sorts before 'discord'
+      .order('born_at', { ascending: true })
+      .limit(1);
+    if (error) throw new Error(`findByMint failed: ${error.message}`);
+    return data?.[0] ?? null;
+  }
+
+  // Record an ownership claim. Guarded update (owner_wallet is null) so a race
+  // can't overwrite an existing claim; returns null if already claimed, letting
+  // the caller distinguish "claimed by you" from "claimed by someone else".
+  async claim(id: string, wallet: string): Promise<Bagimon | null> {
+    const now = new Date().toISOString();
+    const { data, error } = await this.client
+      .from('bagimons')
+      .update({ owner_wallet: wallet, claimed_at: now, updated_at: now })
+      .eq('id', id)
+      .is('owner_wallet', null)
+      .select()
+      .maybeSingle();
+    if (error) throw new Error(`claim failed: ${error.message}`);
     return data;
   }
 

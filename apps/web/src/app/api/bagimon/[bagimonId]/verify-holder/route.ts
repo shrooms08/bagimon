@@ -61,6 +61,9 @@ export async function POST(
   if (!sig.ok) {
     return NextResponse.json({ verified: false, reason: sig.reason }, { status: 401 });
   }
+  if (sig.purpose !== 'interact') {
+    return NextResponse.json({ verified: false, reason: 'wrong nonce purpose' }, { status: 401 });
+  }
 
   let balance: number;
   try {

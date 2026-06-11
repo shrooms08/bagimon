@@ -55,6 +55,9 @@ function makeBagimon(overrides: Partial<Bagimon> = {}): Bagimon {
     last_fed_at: null,
     last_fed_by: null,
     last_interaction_at: null,
+    created_via: 'discord',
+    owner_wallet: null,
+    claimed_at: null,
     ...overrides,
   };
 }

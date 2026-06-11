@@ -14,6 +14,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@bagimon/bags-api": "workspace:*",
     "@bagimon/db": "workspace:*",
     "@bagimon/shared": "workspace:*",
     "@solana/wallet-adapter-react": "^0.15.39",

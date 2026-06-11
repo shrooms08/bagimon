@@ -58,6 +58,8 @@ export class DeathAnnouncer {
   }
 
   private async announce(b: Bagimon): Promise<void> {
+    // Web-spawned Bagimons have no Discord server to announce in.
+    if (!b.discord_server_id) return;
     const guild = await this.client.guilds.fetch(b.discord_server_id);
     const channel = await pickAnnounceChannel(guild);
     if (!channel) throw new Error('no writable channel available');

@@ -21,19 +21,31 @@ function secret(): Uint8Array {
   return new TextEncoder().encode(s);
 }
 
+// What the signature authorizes. 'interact' gates the free feed/pet actions
+// (7.4); 'claim' gates a creator's ownership claim (7.6). The purpose is baked
+// into both the nonce JWT and the signed message so a signature minted for one
+// purpose can never be replayed for the other.
+export type NoncePurpose = 'interact' | 'claim';
+
 // The exact text the wallet is asked to sign. Deterministically rebuilt from
-// nonce claims on the server so a holder can only ever sign our message.
+// nonce claims on the server so a wallet can only ever sign our message.
 export function buildSignMessage(claims: {
   bagimonId: string;
   nonce: string;
   issuedAt: string;
+  purpose: NoncePurpose;
 }): string {
+  const headline =
+    claims.purpose === 'claim'
+      ? 'Bagimon — prove you are the creator to claim this Bagimon.'
+      : 'Bagimon — prove you hold this coin to care for your Bagimon.';
   return [
-    'Bagimon — prove you hold this coin to care for your Bagimon.',
+    headline,
     '',
     'This is a free signature. It does not approve any transaction or spend.',
     '',
     `Bagimon: ${claims.bagimonId}`,
+    `Action: ${claims.purpose}`,
     `Nonce: ${claims.nonce}`,
     `Issued: ${claims.issuedAt}`,
   ].join('\n');
@@ -44,11 +56,14 @@ export interface IssuedNonce {
   message: string;
 }
 
-export async function issueNonce(bagimonId: string): Promise<IssuedNonce> {
+export async function issueNonce(
+  bagimonId: string,
+  purpose: NoncePurpose = 'interact',
+): Promise<IssuedNonce> {
   const nonce = randomBytes(16).toString('hex');
   const issuedAt = new Date().toISOString();
-  const message = buildSignMessage({ bagimonId, nonce, issuedAt });
-  const nonceToken = await new SignJWT({ typ: 'nonce', bagimonId, nonce, issuedAt })
+  const message = buildSignMessage({ bagimonId, nonce, issuedAt, purpose });
+  const nonceToken = await new SignJWT({ typ: 'nonce', purpose, bagimonId, nonce, issuedAt })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(NONCE_TTL)
@@ -65,11 +80,17 @@ export interface VerifyInput {
 }
 
 export type VerifyResult =
-  | { ok: true }
+  | { ok: true; purpose: NoncePurpose }
   | { ok: false; reason: string };
 
 export async function verifyHolderSignature(input: VerifyInput): Promise<VerifyResult> {
-  let claims: { typ?: unknown; bagimonId?: unknown; nonce?: unknown; issuedAt?: unknown };
+  let claims: {
+    typ?: unknown;
+    purpose?: unknown;
+    bagimonId?: unknown;
+    nonce?: unknown;
+    issuedAt?: unknown;
+  };
   try {
     const { payload } = await jwtVerify(input.nonceToken, secret());
     claims = payload as typeof claims;
@@ -82,13 +103,16 @@ export async function verifyHolderSignature(input: VerifyInput): Promise<VerifyR
   if (typeof claims.nonce !== 'string' || typeof claims.issuedAt !== 'string') {
     return { ok: false, reason: 'malformed nonce' };
   }
+  // Older nonces (pre-7.6) carry no purpose claim → treat as 'interact'.
+  const purpose: NoncePurpose = claims.purpose === 'claim' ? 'claim' : 'interact';
 
   // Reconstruct the message from trusted claims; the client-submitted message
-  // must match exactly, so a holder can never sign attacker-chosen text.
+  // must match exactly, so a wallet can never sign attacker-chosen text.
   const expected = buildSignMessage({
     bagimonId: input.bagimonId,
     nonce: claims.nonce,
     issuedAt: claims.issuedAt,
+    purpose,
   });
   if (expected !== input.message) {
     return { ok: false, reason: 'signed message mismatch' };
@@ -105,7 +129,7 @@ export async function verifyHolderSignature(input: VerifyInput): Promise<VerifyR
     return { ok: false, reason: 'malformed wallet or signature' };
   }
   if (!valid) return { ok: false, reason: 'signature verification failed' };
-  return { ok: true };
+  return { ok: true, purpose };
 }
 
 export async function issueSession(wallet: string, bagimonId: string): Promise<string> {

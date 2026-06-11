@@ -16,6 +16,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@bagimon/bags-api": "workspace:*",
     "@bagimon/shared": "workspace:*",
     "@supabase/supabase-js": "^2.43.0"
   },
